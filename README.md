@@ -1,36 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+    Controllers (Controladores):
+    → São responsáveis por receber as requisições HTTP e chamar os Services.
+    → Aqui ficam as rotas da API e a lógica de entrada e saída de dados.
+    → Exemplo: Se alguém faz um POST /users, o controller pega os dados da requisição e chama um serviço para criar o usuário.
 
-## Getting Started
+    Services (Serviços):
+    → Contêm a lógica de negócios da aplicação.
+    → Aqui ficam as regras do que pode ou não ser feito.
+    → Exemplo: Se um usuário for criado, o service pode validar se o e-mail já existe antes de mandar para o banco de dados.
 
-First, run the development server:
+    Repositories (Repositórios):
+    → Responsáveis por acessar o banco de dados.
+    → Aqui ficam as funções de buscar, salvar, atualizar ou deletar dados no banco.
+    → Exemplo: Um método createUser(data) que insere um usuário na tabela do banco.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🔹 Resumo prático
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    O Controller recebe a requisição.
+    O Service processa as regras de negócio.
+    O Repository faz a comunicação com o banco de dados.# CrawlerX
