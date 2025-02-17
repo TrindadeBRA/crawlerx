@@ -21,6 +21,11 @@ export default function ImportModal() {
             name: 'tecmundo.com.br',
             value: 'tecmundo.com.br'
         },
+        {
+            id: 2,
+            name: 'developer-tech.com',
+            value: 'developer-tech.com'
+        }
 
     ]
 

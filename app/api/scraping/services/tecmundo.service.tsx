@@ -44,7 +44,6 @@ export async function scrapeTecmundo(options?: ScrapeTecmundoOptions): Promise<A
       });
     }, options?.limit);
 
-    console.log('articles:', articles);
 
 
     const detailedArticles: Article[] = [];
@@ -83,11 +82,11 @@ export async function scrapeTecmundo(options?: ScrapeTecmundoOptions): Promise<A
 
         if (articleData) {
 
-          // console.log("Artigo extraído:", {
-          //   title: articleData.title,
-          //   url: articleData.url,
-          //   contentPreview: articleData.content.substring(0, 150) + "..."
-          // });
+          console.log("Artigo extraído:", {
+            title: articleData.title,
+            url: articleData.url,
+            contentPreview: articleData.content.substring(0, 150) + "..."
+          });
 
           detailedArticles.push(articleData);
         } else {

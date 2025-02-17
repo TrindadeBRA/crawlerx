@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scrapeTecmundo } from "../services/tecmundo.service";
 import { PostsService } from "../../posts/services/posts.service";
+import { scrapeDeveloperTech } from "../services/developer-tech.service";
 
 export class ScrapingController {
   private postsService: PostsService;
@@ -26,6 +27,12 @@ export class ScrapingController {
       switch (body.domain) {
         case "tecmundo.com.br":
           data = await scrapeTecmundo({
+            searchTerm: body.searchTerm,
+            limit: body.limit
+          });
+          break;
+        case "developer-tech.com":
+          data = await scrapeDeveloperTech({
             searchTerm: body.searchTerm,
             limit: body.limit
           });
