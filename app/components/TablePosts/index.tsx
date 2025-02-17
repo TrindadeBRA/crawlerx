@@ -1,77 +1,26 @@
 'use client';
 
 import { Post } from '@prisma/client';
-import { useEffect, useState } from 'react';
+import { usePosts } from '@/app/hooks/usePosts';
+import { ArrowUpCircleIcon, EyeIcon } from '@heroicons/react/24/solid';
+import { twMerge } from 'tailwind-merge'
+
 
 export default function TablePosts() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const { posts, isLoading, processPost } = usePosts();
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch('/api/posts/list');
-        if (!response.ok) {
-          throw new Error('Falha ao buscar posts');
-        }
-        const { data } = await response.json();
-        setPosts(data);
-      } catch (error) {
-        console.error('Erro ao carregar posts:', error);
-      }
-    };
-
-    fetchPosts();
-  }, []);
-
-  const handleProcessPost = async (post: Post) => {
-    try {
-      const payload = {
-        og_post_url: post.url,
-        og_post_title: post.title,
-        og_post_content: post.content || ''
-      };
-
-      const response = await fetch(process.env.NEXT_PUBLIC_WEBHOOK_URL || '', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha ao processar o post');
-      }
-
-      const updatedPost = await fetch(`/api/posts/status`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: post.id, status: 'PROCESSED' }),
-      });
-
-      if (!updatedPost.ok) {
-        throw new Error('Falha ao atualizar o status do post');
-      }
-
-      alert('Post processado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao processar o post:', error);
-      alert('Erro ao processar o post');
-    }
-  };
-
-  return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold text-gray-900">Posts</h1>
-          <p className="mt-2 text-sm text-gray-700">
-            Lista de todos os posts importados no sistema.
-          </p>
+  if (isLoading) {
+    return (
+      <div className="px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="px-4 sm:px-6 lg:px-8 py-6">
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -91,35 +40,48 @@ export default function TablePosts() {
                     Data de Criação
                   </th>
                   <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                    Ver
+                    <span className="sr-only">Ver</span>
                   </th>
                   <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                    Processar
+                    <span className="sr-only">Processar</span>
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {posts.map((post) => (
-                  <tr key={post.id}>
-                    <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-0">
+                {posts.map((post: Post) => (
+                  <tr key={post.id} className="hover:bg-[#ffdddd]">
+                    <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900">
                       {post.title}
                     </td>
                     <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">{post.domain}</td>
                     <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">{post.status}</td>
                     <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
-                      {new Date(post.createdAt).toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
-                      <a href={post.url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-900">
-                        Ver post<span className="sr-only">, {post.title}</span>
-                      </a>
+                      {new Date(post.createdAt).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                      })}
                     </td>
                     <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
                       <button
-                        onClick={() => handleProcessPost(post)}
-                        className="text-indigo-600 hover:text-indigo-900"
+                        onClick={() => window.open(post.url, '_blank')}
+                        className="text-primary hover:text-primary/80"
                       >
-                        Processar<span className="sr-only">, {post.title}</span>
+                        <EyeIcon className="size-5" />
+                      </button>
+                    </td>
+                    <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap">
+                      <button
+                        onClick={() => processPost(post)}
+                        className={twMerge(
+                          'text-primary hover:text-primary/80',
+                          post.status === 'PROCESSED' && 'opacity-50'
+                        )}
+                      >
+                        <ArrowUpCircleIcon className="size-5" />
                       </button>
                     </td>
                   </tr>
