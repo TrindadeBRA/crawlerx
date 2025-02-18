@@ -2,55 +2,45 @@
 
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useImportModal } from '../../hooks/useImportModal';
-import { useScraping } from '@/app/hooks/useScraping'
+import { useManualImportModal } from '../../hooks/usemanualImportModal'
+import { usePosts } from '@/src/hooks/usePosts'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ImportPostsInput, importPostsSchema } from '@/app/lib/schemas/post.schema'
+import { CreatePostInput, createPostSchema } from '@/src/lib/schemas/post.schema'
+import { extractDomain } from '@/src/utils/extractDomain'
+import { Input } from '@/src/components/inputs/input'
+import { TextArea } from '@/src/components/inputs/textarea'
 import { Button } from '@/src/components/inputs/button'
-import { Input } from '@/src/components/inputs/input';
-import { Select } from '@/src/components/inputs/select'
 
-export default function ImportModal() {
-    const { open, handleClose } = useImportModal();
-    const { scrapePosts, isPending } = useScraping()
+export default function ImportManualModal() {
+    const { open, handleClose } = useManualImportModal()
+    const { savePost, isSaving } = usePosts()
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-        // reset
-    } = useForm<ImportPostsInput>({
-        resolver: zodResolver(importPostsSchema),
+        reset
+    } = useForm<CreatePostInput>({
+        resolver: zodResolver(createPostSchema),
         defaultValues: {
-            platform: '',
-            searchTerm: '',
-            quantity: 1
+            title: '',
+            content: '',
+            url: ''
         }
     })
 
-    const onSubmit = (data: ImportPostsInput) => {
-        scrapePosts(data)
-    }
+    const onSubmit = async (data: CreatePostInput) => {
+        await savePost({
+            ...data,
+            domain: extractDomain(data.url),
+            isActive: true,
+            status: 'IMPORTED'
+        })
 
-    const platforms = [
-        {
-            id: 0,
-            name: 'Selecione a plataforma',
-            value: '',
-            disabled: true
-        },
-        {
-            id: 1,
-            name: 'tecmundo.com.br',
-            value: 'tecmundo.com.br'
-        },
-        {
-            id: 2,
-            name: 'developer-tech.com',
-            value: 'developer-tech.com'
-        }
-    ]
+        reset()
+        handleClose()
+    }
 
     return (
         <Dialog open={open} onClose={handleClose} className="relative z-10">
@@ -60,13 +50,14 @@ export default function ImportModal() {
                 <div className="absolute inset-0 overflow-hidden">
                     <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
                         <DialogPanel
-                            transition
                             className="pointer-events-auto w-screen max-w-md transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
                         >
                             <div className="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
                                 <div className="px-4 sm:px-6">
                                     <div className="flex items-start justify-between">
-                                        <DialogTitle className="text-base font-semibold text-gray-900">Opções de Importação</DialogTitle>
+                                        <DialogTitle className="text-base font-semibold text-gray-900">
+                                            Importação Manual
+                                        </DialogTitle>
                                         <div className="ml-3 flex h-7 items-center">
                                             <button
                                                 type="button"
@@ -83,34 +74,33 @@ export default function ImportModal() {
                                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
                                     <div className="relative mt-6 flex-1 px-4 sm:px-6 flex flex-col gap-4">
 
-                                        <Select
-                                            label="Plataforma"
-                                            error={errors.platform?.message}
-                                            options={platforms}
-                                            {...register('platform')}
+                                        <Input
+                                            label="Título"
+                                            error={errors.title?.message}
+                                            {...register('title')}
+                                            placeholder="Digite o título do post"
+                                        />
+
+                                        <TextArea
+                                            {...register('content')}
+                                            id="content"
+                                            placeholder="Digite a descrição do post"
+                                            label="Conteúdo"
+                                            error={errors.content?.message}
                                         />
 
                                         <Input
-                                            label="Termo de Busca"
-                                            error={errors.searchTerm?.message}
-                                            {...register('searchTerm')}
-                                            placeholder="Digite o termo de busca"
-                                        />
-
-                                        <Input
-                                            label="Quantidade de Posts"
-                                            error={errors.quantity?.message}
-                                            {...register('quantity', { valueAsNumber: true })}
-                                            type="number"
-                                            min="1"
-                                            max="10"
-                                            placeholder="Digite a quantidade de posts"
+                                            {...register('url')}
+                                            label="URL"
+                                            error={errors.url?.message}
+                                            placeholder="Digite a URL do post"
+                                            type="url"
                                         />
 
                                         <div className="mt-auto border-t pt-4">
                                             <Button
                                                 type="submit"
-                                                isLoading={isPending}
+                                                isLoading={isSaving}
                                                 label="Importar"
                                             />
                                         </div>

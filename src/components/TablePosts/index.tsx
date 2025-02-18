@@ -1,7 +1,7 @@
 'use client';
 
 import { Post } from '@prisma/client';
-import { usePosts } from '@/app/hooks/usePosts';
+import { usePosts } from '@/src/hooks/usePosts';
 import { ArrowUpCircleIcon, EyeIcon } from '@heroicons/react/24/solid';
 import { twMerge } from 'tailwind-merge'
 

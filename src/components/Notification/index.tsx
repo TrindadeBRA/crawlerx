@@ -3,7 +3,7 @@
 import { Transition } from '@headlessui/react'
 import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { XMarkIcon } from '@heroicons/react/20/solid'
-import { useNotification } from '@/app/hooks/useNotification'
+import { useNotification } from '@/src/hooks/useNotification'
 
 export default function Notification() {
   const { isOpen, title, message, type, hideNotification } = useNotification()
