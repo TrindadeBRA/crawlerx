@@ -2,13 +2,20 @@
 
 import Image from 'next/image';
 import { useImportModal } from '../../hooks/useImportModal';
+import { useManualImportModal } from '../../hooks/usemanualImportModal';
 
 export default function Header() {
-    const { handleOpen  } = useImportModal();
+    const { handleOpen } = useImportModal();
+    const { handleOpen: handleOpenManualImport } = useManualImportModal();
 
     const handleImport = () => {
         console.log('Importando conteúdo');
         handleOpen();
+    }
+
+    const handleManualImport = () => {
+        console.log('Importando manual');
+        handleOpenManualImport();
     }
 
     return (
@@ -23,9 +30,14 @@ export default function Header() {
                         </p>
                     </div>
                 </div>
-                <button className="font-bold ml-auto px-4 py-2 text-white rounded bg-primary" onClick={handleImport}>
-                    Importar Conteúdo
-                </button>
+                <div className="flex items-center gap-4">
+                    <button type="button" className="font-bold ml-auto px-4 py-2 text-white rounded bg-primary" onClick={handleImport}>
+                        Importar com CrawlerX
+                    </button>
+                    <button type="button" className="font-bold ml-auto px-4 py-2 text-white rounded bg-primary" onClick={handleManualImport}>
+                        Importar Manual
+                    </button>
+                </div>
             </div>
         </div>
     );

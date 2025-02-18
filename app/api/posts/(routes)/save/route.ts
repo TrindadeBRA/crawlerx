@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { PostsController } from "../../controllers/posts.controller";
 
 const postsController = new PostsController();

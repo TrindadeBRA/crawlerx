@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Post } from '@prisma/client'
+import type { Post } from '@prisma/client'
 import { useNotification } from './useNotification'
 
 export function usePosts() {
@@ -42,7 +42,7 @@ export function usePosts() {
       }
 
       // Atualizar status do post
-      const statusResponse = await fetch(`/api/posts/status`, {
+      const statusResponse = await fetch("/api/posts/status", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,9 +74,45 @@ export function usePosts() {
     }
   })
 
+  // Mutation para salvar um post
+  const { mutate: savePost, isPending: isSaving } = useMutation({
+    mutationFn: async (postData: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>) => {
+      const response = await fetch('/api/posts/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Falha ao salvar o post')
+      }
+
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+      showNotification(
+        'Sucesso',
+        'Post salvo com sucesso!',
+        'success'
+      )
+    },
+    onError: (error: Error) => {
+      showNotification(
+        'Erro',
+        error.message || 'Erro ao salvar o post',
+        'error'
+      )
+    }
+  })
+
   return {
     posts,
     isLoading,
-    processPost
+    processPost,
+    savePost,
+    isSaving
   }
 } 
