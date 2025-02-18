@@ -2,49 +2,44 @@
 
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useManualImportModal } from '../../hooks/usemanualImportModal';
-import { useState } from 'react'
-import { usePosts } from '@/app/hooks/usePosts';
+import { useManualImportModal } from '../../hooks/usemanualImportModal'
+import { usePosts } from '@/app/hooks/usePosts'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CreatePostInput, createPostSchema } from '@/app/lib/schemas/post.schema'
+import { extractDomain } from '@/src/utils/extractDomain'
+import { Input } from '@/src/components/inputs/input'
+import { TextArea } from '@/src/components/inputs/textarea'
+import { Button } from '@/src/components/inputs/button'
 
 export default function ImportManualModal() {
-    const { open, handleClose } = useManualImportModal();
+    const { open, handleClose } = useManualImportModal()
     const { savePost, isSaving } = usePosts()
 
-    const [formData, setFormData] = useState({
-        title: '',
-        content: '',
-        url: ''
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset
+    } = useForm<CreatePostInput>({
+        resolver: zodResolver(createPostSchema),
+        defaultValues: {
+            title: '',
+            content: '',
+            url: ''
+        }
     })
 
-    const extractDomain = (url: string): string => {
-        try {
-            const urlObject = new URL(url);
-            return urlObject.hostname;
-        } catch {
-            return 'exemplo.com.br';
-        }
-    }
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        savePost({
-            title: formData.title,
-            content: formData.content,
-            url: formData.url,
-            domain: extractDomain(formData.url),
+    const onSubmit = async (data: CreatePostInput) => {
+        await savePost({
+            ...data,
+            domain: extractDomain(data.url),
             isActive: true,
             status: 'IMPORTED'
         })
-        
-        handleClose()
-    }
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === 'quantity' ? Number(value) : value
-        }))
+        reset()
+        handleClose()
     }
 
     return (
@@ -55,13 +50,14 @@ export default function ImportManualModal() {
                 <div className="absolute inset-0 overflow-hidden">
                     <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
                         <DialogPanel
-                            transition
                             className="pointer-events-auto w-screen max-w-md transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
                         >
                             <div className="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
                                 <div className="px-4 sm:px-6">
                                     <div className="flex items-start justify-between">
-                                        <DialogTitle className="text-base font-semibold text-gray-900">Importação Manual</DialogTitle>
+                                        <DialogTitle className="text-base font-semibold text-gray-900">
+                                            Importação Manual
+                                        </DialogTitle>
                                         <div className="ml-3 flex h-7 items-center">
                                             <button
                                                 type="button"
@@ -75,68 +71,38 @@ export default function ImportManualModal() {
                                         </div>
                                     </div>
                                 </div>
-                                <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
                                     <div className="relative mt-6 flex-1 px-4 sm:px-6 flex flex-col gap-4">
 
-                                        <div>
-                                            <label htmlFor="title" className="block text-sm/6 text-gray-900 font-bold">
-                                                Título
-                                            </label>
-                                            <div className="mt-2">
-                                                <input
-                                                    required
-                                                    id="title"
-                                                    name="title"
-                                                    value={formData.title}
-                                                    onChange={handleChange}
-                                                    placeholder="Digite o título do post"
-                                                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                                                />
-                                            </div>
-                                        </div>
+                                        <Input
+                                            label="Título"
+                                            error={errors.title?.message}
+                                            {...register('title')}
+                                            placeholder="Digite o título do post"
+                                        />
 
-                                        <div>
-                                            <label htmlFor="content" className="block text-sm/6 text-gray-900 font-bold">
-                                                Conteúdo
-                                            </label>
-                                            <div className="mt-2">
-                                                <textarea
-                                                    required
-                                                    id="content"
-                                                    name="content"
-                                                    value={formData.content}
-                                                    onChange={handleChange}
-                                                    placeholder="Digite a descrição do post"
-                                                    className="h-32 block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                                                />
-                                            </div>
-                                        </div>
+                                        <TextArea
+                                            {...register('content')}
+                                            id="content"
+                                            placeholder="Digite a descrição do post"
+                                            label="Conteúdo"
+                                            error={errors.content?.message}
+                                        />
 
-                                        <div>
-                                            <label htmlFor="url" className="block text-sm/6 text-gray-900 font-bold">
-                                                URL
-                                            </label>
-                                            <div className="mt-2">
-                                                <input
-                                                    id="url"
-                                                    name="url"
-                                                    value={formData.url}
-                                                    onChange={handleChange}
-                                                    placeholder="Digite a URL do post"
-                                                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                                                />
-                                            </div>
-                                        </div>
-
+                                        <Input
+                                            {...register('url')}
+                                            label="URL"
+                                            error={errors.url?.message}
+                                            placeholder="Digite a URL do post"
+                                            type="url"
+                                        />
 
                                         <div className="mt-auto border-t pt-4">
-                                            <button
+                                            <Button
                                                 type="submit"
-                                                disabled={isSaving}
-                                                className="w-full rounded-md bg-primary px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {isSaving ? 'Importando...' : 'Importar'}
-                                            </button>
+                                                isLoading={isSaving}
+                                                label="Importar"
+                                            />
                                         </div>
                                     </div>
                                 </form>

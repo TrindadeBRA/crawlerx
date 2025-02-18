@@ -1,21 +1,45 @@
 'use client'
 
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
-import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useImportModal } from '../../hooks/useImportModal';
 import { useScraping } from '@/app/hooks/useScraping'
-import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ImportPostsInput, importPostsSchema } from '@/app/lib/schemas/post.schema'
+import { Button } from '@/src/components/inputs/button'
+import { Input } from '@/src/components/inputs/input';
+import { Select } from '@/src/components/inputs/select'
 
 export default function ImportModal() {
     const { open, handleClose } = useImportModal();
     const { scrapePosts, isPending } = useScraping()
-    const [formData, setFormData] = useState({
-        platform: 'tecmundo.com.br',
-        searchTerm: '',
-        quantity: 1
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        // reset
+    } = useForm<ImportPostsInput>({
+        resolver: zodResolver(importPostsSchema),
+        defaultValues: {
+            platform: '',
+            searchTerm: '',
+            quantity: 1
+        }
     })
 
+    const onSubmit = (data: ImportPostsInput) => {
+        scrapePosts(data)
+    }
+
     const platforms = [
+        {
+            id: 0,
+            name: 'Selecione a plataforma',
+            value: '',
+            disabled: true
+        },
         {
             id: 1,
             name: 'tecmundo.com.br',
@@ -26,21 +50,7 @@ export default function ImportModal() {
             name: 'developer-tech.com',
             value: 'developer-tech.com'
         }
-
     ]
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        scrapePosts(formData)
-    }
-
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-        const { name, value } = e.target
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === 'quantity' ? Number(value) : value
-        }))
-    }
 
     return (
         <Dialog open={open} onClose={handleClose} className="relative z-10">
@@ -70,74 +80,39 @@ export default function ImportModal() {
                                         </div>
                                     </div>
                                 </div>
-                                <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
                                     <div className="relative mt-6 flex-1 px-4 sm:px-6 flex flex-col gap-4">
-                                        <div>
-                                            <label htmlFor="platform" className="block text-sm/6 text-gray-900 font-bold">
-                                                Plataforma
-                                            </label>
-                                            <div className="mt-2 grid grid-cols-1">
-                                                <select
-                                                    id="platform"
-                                                    name="platform"
-                                                    value={formData.platform}
-                                                    onChange={handleChange}
-                                                    className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                                                >
-                                                    {platforms.map((platform) => (
-                                                        <option key={platform.id} value={platform.value}>{platform.name}</option>
-                                                    ))}
-                                                </select>
-                                                <ChevronDownIcon
-                                                    aria-hidden="true"
-                                                    className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
-                                                />
-                                            </div>
-                                        </div>
 
-                                        <div>
-                                            <label htmlFor="searchTerm" className="block text-sm/6 font-bold text-gray-900">
-                                                Termo de Busca
-                                            </label>
-                                            <div className="mt-2">
-                                                <input
-                                                    id="searchTerm"
-                                                    name="searchTerm"
-                                                    type="text"
-                                                    value={formData.searchTerm}
-                                                    onChange={handleChange}
-                                                    placeholder="Digite o termo de busca"
-                                                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                                                />
-                                            </div>
-                                        </div>
+                                        <Select
+                                            label="Plataforma"
+                                            error={errors.platform?.message}
+                                            options={platforms}
+                                            {...register('platform')}
+                                        />
 
-                                        <div>
-                                            <label htmlFor="quantity" className="block text-sm/6 font-bold text-gray-900">
-                                                Quantidade de Posts
-                                            </label>
-                                            <div className="mt-2">
-                                                <input
-                                                    id="quantity"
-                                                    name="quantity"
-                                                    type="number"
-                                                    value={formData.quantity}
-                                                    onChange={handleChange}
-                                                    min="1"
-                                                    placeholder="Digite a quantidade de posts"
-                                                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                                                />
-                                            </div>
-                                        </div>
+                                        <Input
+                                            label="Termo de Busca"
+                                            error={errors.searchTerm?.message}
+                                            {...register('searchTerm')}
+                                            placeholder="Digite o termo de busca"
+                                        />
+
+                                        <Input
+                                            label="Quantidade de Posts"
+                                            error={errors.quantity?.message}
+                                            {...register('quantity', { valueAsNumber: true })}
+                                            type="number"
+                                            min="1"
+                                            max="10"
+                                            placeholder="Digite a quantidade de posts"
+                                        />
 
                                         <div className="mt-auto border-t pt-4">
-                                            <button
+                                            <Button
                                                 type="submit"
-                                                disabled={isPending}
-                                                className="w-full rounded-md bg-primary px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {isPending ? 'Importando...' : 'Importar'}
-                                            </button>
+                                                isLoading={isPending}
+                                                label="Importar"
+                                            />
                                         </div>
                                     </div>
                                 </form>
