@@ -13,8 +13,59 @@ export default function TablePosts() {
   if (isLoading) {
     return (
       <div className="px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="mt-8 flow-root">
+          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <table className="min-w-full divide-y divide-gray-300">
+                <thead>
+                  <tr>
+                    <th scope="col" className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                      Título
+                    </th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      Domínio
+                    </th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      Status
+                    </th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      Data de Criação
+                    </th>
+                    <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
+                      <span className="sr-only">Ver</span>
+                    </th>
+                    <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
+                      <span className="sr-only">Processar</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {[...Array(5)].map((_, index) => (
+                    <tr key={index} className="hover:bg-[#ffdddd]">
+                      <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap">
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-40"></div>
+                      </td>
+                      <td className="px-3 py-4 text-sm whitespace-nowrap">
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-24"></div>
+                      </td>
+                      <td className="px-3 py-4 text-sm whitespace-nowrap">
+                        <div className="h-6 bg-gray-200 rounded-full animate-pulse w-20"></div>
+                      </td>
+                      <td className="px-3 py-4 text-sm whitespace-nowrap">
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-32"></div>
+                      </td>
+                      <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-5 ml-auto"></div>
+                      </td>
+                      <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap">
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-5 ml-auto"></div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -52,7 +103,7 @@ export default function TablePosts() {
                 {posts.map((post: Post) => (
                   <tr key={post.id} className="hover:bg-[#ffdddd]">
                     <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                      {post.title}
+                      {post.title.length > 40 ? post.title.slice(0, 40).concat('...') : post.title}
                     </td>
                     <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
                       {post.domain.replace('www.', '')}
@@ -99,4 +150,3 @@ export default function TablePosts() {
     </div>
   );
 }
-  

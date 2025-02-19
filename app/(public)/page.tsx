@@ -9,12 +9,12 @@ import TablePosts from "../../src/components/TablePosts";
 export default function Home() {
   
   return (
-    <>
-      <Header />
+    <div className="">
+      <Header title="Importações" description="Lista de todos os posts importados no sistema." />
       <TablePosts />
       <ImportModal/>
       <ImportManualModal/>
       <Notification />
-    </>
+    </div>
   );
 }
