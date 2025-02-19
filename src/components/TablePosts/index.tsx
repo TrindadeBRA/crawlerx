@@ -4,6 +4,7 @@ import { Post } from '@prisma/client';
 import { usePosts } from '@/src/hooks/usePosts';
 import { ArrowUpCircleIcon, EyeIcon } from '@heroicons/react/24/solid';
 import { twMerge } from 'tailwind-merge'
+import { BadgeStatus } from '../BadgeStatus/indext';
 
 
 export default function TablePosts() {
@@ -54,7 +55,9 @@ export default function TablePosts() {
                       {post.title}
                     </td>
                     <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">{post.domain}</td>
-                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">{post.status}</td>
+                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
+                      <BadgeStatus status={post.status} />
+                    </td>
                     <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
                       {new Date(post.createdAt).toLocaleDateString('pt-BR', {
                         day: '2-digit',
