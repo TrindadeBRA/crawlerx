@@ -5,10 +5,81 @@ import { usePosts } from '@/src/hooks/usePosts';
 import { ArrowUpCircleIcon, EyeIcon } from '@heroicons/react/24/solid';
 import { twMerge } from 'tailwind-merge'
 import { BadgeStatus } from '../BadgeStatus/indext';
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 
 
 export default function TablePosts() {
   const { posts, isLoading, processPost } = usePosts();
+  
+  const columnHelper = createColumnHelper<Post>();
+
+  const columns = [
+    columnHelper.accessor('title', {
+      header: 'Título',
+      cell: (info) => (
+        info.getValue().length > 40 
+          ? info.getValue().slice(0, 40).concat('...') 
+          : info.getValue()
+      ),
+    }),
+    columnHelper.accessor('domain', {
+      header: 'Domínio',
+      cell: (info) => info.getValue().replace('www.', ''),
+    }),
+    columnHelper.accessor('status', {
+      header: 'Status',
+      cell: (info) => <BadgeStatus status={info.getValue()} />,
+    }),
+    columnHelper.accessor('createdAt', {
+      header: 'Data de Criação',
+      cell: (info) => new Date(info.getValue()).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }),
+    }),
+    columnHelper.display({
+      id: 'view',
+      header: () => <span className="sr-only">Ver</span>,
+      cell: (info) => (
+        <button
+          onClick={() => window.open(info.row.original.url, '_blank')}
+          className="text-primary hover:text-primary/80"
+        >
+          <EyeIcon className="size-5" />
+        </button>
+      ),
+    }),
+    columnHelper.display({
+      id: 'process',
+      header: () => <span className="sr-only">Processar</span>,
+      cell: (info) => (
+        <button
+          onClick={() => processPost(info.row.original)}
+          className={twMerge(
+            'text-primary hover:text-primary/80',
+            info.row.original.status === 'PROCESSED' && 'opacity-50'
+          )}
+        >
+          <ArrowUpCircleIcon className="size-5" />
+        </button>
+      ),
+    }),
+  ];
+
+  const table = useReactTable({
+    data: posts ?? [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   if (isLoading) {
     return (
@@ -78,68 +149,37 @@ export default function TablePosts() {
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <table className="min-w-full divide-y divide-gray-300">
               <thead>
-                <tr>
-                  <th scope="col" className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                    Título
-                  </th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Domínio
-                  </th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Status
-                  </th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Data de Criação
-                  </th>
-                  <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                    <span className="sr-only">Ver</span>
-                  </th>
-                  <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                    <span className="sr-only">Processar</span>
-                  </th>
-                </tr>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map(header => (
+                      <th 
+                        key={header.id}
+                        scope="col" 
+                        className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                ))}
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {posts.map((post: Post) => (
-                  <tr key={post.id} className="hover:bg-[#ffdddd]">
-                    <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                      {post.title.length > 40 ? post.title.slice(0, 40).concat('...') : post.title}
-                    </td>
-                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
-                      {post.domain.replace('www.', '')}
-                    </td>
-                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
-                      <BadgeStatus status={post.status} />
-                    </td>
-                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
-                      {new Date(post.createdAt).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                      })}
-                    </td>
-                    <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
-                      <button
-                        onClick={() => window.open(post.url, '_blank')}
-                        className="text-primary hover:text-primary/80"
+                {table.getRowModel().rows.map(row => (
+                  <tr key={row.id} className="hover:bg-[#ffdddd]">
+                    {row.getVisibleCells().map(cell => (
+                      <td 
+                        key={cell.id}
+                        className="px-3 py-4 text-sm whitespace-nowrap text-gray-500"
                       >
-                        <EyeIcon className="size-5" />
-                      </button>
-                    </td>
-                    <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap">
-                      <button
-                        onClick={() => processPost(post)}
-                        className={twMerge(
-                          'text-primary hover:text-primary/80',
-                          post.status === 'PROCESSED' && 'opacity-50'
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
                         )}
-                      >
-                        <ArrowUpCircleIcon className="size-5" />
-                      </button>
-                    </td>
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>

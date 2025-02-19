@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^4.1.0",
     "@prisma/client": "^6.3.1",
     "@tanstack/react-query": "^5.66.3",
+    "@tanstack/react-table": "^8.21.2",
     "clsx": "^2.1.1",
     "next": "15.1.7",
     "puppeteer": "^24.2.1",
