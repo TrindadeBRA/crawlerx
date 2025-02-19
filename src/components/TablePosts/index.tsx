@@ -54,7 +54,9 @@ export default function TablePosts() {
                     <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900">
                       {post.title}
                     </td>
-                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">{post.domain}</td>
+                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
+                      {post.domain.replace('www.', '')}
+                    </td>
                     <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
                       <BadgeStatus status={post.status} />
                     </td>
