@@ -18,9 +18,11 @@ export class PostsRepository {
     }
   }
 
-  async findAll(): Promise<Post[]> {
+  async findAll(skip?: number, take?: number): Promise<Post[]> {
     try {
       return await this.prisma.post.findMany({
+        skip,
+        take,
         orderBy: {
           createdAt: 'desc'
         }
@@ -47,5 +49,9 @@ export class PostsRepository {
       where: { id: postId },
       data: { status }
     });
+  }
+
+  async count() {
+    return this.prisma.post.count();
   }
 } 

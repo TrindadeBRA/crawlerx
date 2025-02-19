@@ -1,6 +1,12 @@
 import { Post, PostStatus } from '@prisma/client';
 import { PostsRepository } from '../repositories/posts.repository';
 
+interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  pageCount: number;
+}
+
 export class PostsService {
   private postsRepository: PostsRepository;
 
@@ -35,8 +41,18 @@ export class PostsService {
     return this.postsRepository.create(sanitizedData);
   }
 
-  async listAllPosts(): Promise<Post[]> {
-    return this.postsRepository.findAll();
+  async listAllPosts(page: number = 1, pageSize: number = 10): Promise<PaginatedResult<Post>> {
+    const skip = (page - 1) * pageSize;
+    const [posts, total] = await Promise.all([
+      this.postsRepository.findAll(skip, pageSize),
+      this.postsRepository.count()
+    ]);
+
+    return {
+      data: posts,
+      total,
+      pageCount: Math.ceil(total / pageSize)
+    };
   }
 
   async findPostByUrl(url: string): Promise<Post | null> {

@@ -9,12 +9,18 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 
 
 export default function TablePosts() {
-  const { posts, isLoading, processPost } = usePosts();
+  const { 
+    posts, 
+    isLoading, 
+    processPost,
+    pagination: { page, setPage, pageCount }
+  } = usePosts();
   
   const columnHelper = createColumnHelper<Post>();
 
@@ -76,9 +82,24 @@ export default function TablePosts() {
   ];
 
   const table = useReactTable({
-    data: posts ?? [],
+    data: posts,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    pageCount,
+    state: {
+      pagination: {
+        pageIndex: page - 1,
+        pageSize: 10,
+      },
+    },
+    onPaginationChange: (updater) => {
+      if (typeof updater === 'function') {
+        const newState = updater({ pageIndex: page - 1, pageSize: 10 });
+        setPage(newState.pageIndex + 1);
+      }
+    },
+    manualPagination: true,
   });
 
   if (isLoading) {
@@ -184,6 +205,52 @@ export default function TablePosts() {
                 ))}
               </tbody>
             </table>
+
+            {/* Controles de Paginação */}
+            <div className="flex items-center justify-between px-4 py-3 sm:px-6">
+              <div className="flex flex-1 justify-between sm:hidden">
+                <button
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                  className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                >
+                  Anterior
+                </button>
+                <button
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                  className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                >
+                  Próximo
+                </button>
+              </div>
+              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Página <span className="font-medium">{page}</span> de{' '}
+                    <span className="font-medium">{pageCount}</span>
+                  </p>
+                </div>
+                <div>
+                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    <button
+                      onClick={() => table.previousPage()}
+                      disabled={!table.getCanPreviousPage()}
+                      className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                    >
+                      Anterior
+                    </button>
+                    <button
+                      onClick={() => table.nextPage()}
+                      disabled={!table.getCanNextPage()}
+                      className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                    >
+                      Próximo
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

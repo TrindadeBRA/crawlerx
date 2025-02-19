@@ -1,21 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Post } from '@prisma/client'
 import { useNotification } from './useNotification'
+import { useState } from 'react'
 
 export function usePosts() {
   const queryClient = useQueryClient()
   const { showNotification } = useNotification()
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   // Query para listar os posts
-  const { data: posts = [], isLoading } = useQuery({
-    queryKey: ['posts'],
+  const { data, isLoading } = useQuery({
+    queryKey: ['posts', page, pageSize],
     queryFn: async () => {
-      const response = await fetch('/api/posts/list')
+      const response = await fetch(`/api/posts/list?page=${page}&pageSize=${pageSize}`)
       if (!response.ok) {
         throw new Error('Falha ao buscar posts')
       }
-      const { data } = await response.json()
-      return data as Post[]
+      return response.json()
     }
   })
 
@@ -109,10 +111,18 @@ export function usePosts() {
   })
 
   return {
-    posts,
+    posts: data?.data ?? [],
     isLoading,
     processPost,
     savePost,
-    isSaving
+    isSaving,
+    pagination: {
+      page,
+      pageSize,
+      setPage,
+      setPageSize,
+      total: data?.total ?? 0,
+      pageCount: data?.pageCount ?? 0
+    }
   }
 } 

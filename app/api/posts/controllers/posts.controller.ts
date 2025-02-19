@@ -9,10 +9,13 @@ export class PostsController {
     this.postsService = new PostsService();
   }
 
-  async listPosts() {
+  async listPosts(searchParams: { page?: string, pageSize?: string }) {
     try {
-      const posts = await this.postsService.listAllPosts();
-      return NextResponse.json({ data: posts });
+      const page = Number(searchParams.page) || 1;
+      const pageSize = Number(searchParams.pageSize) || 10;
+      
+      const result = await this.postsService.listAllPosts(page, pageSize);
+      return NextResponse.json(result);
     } catch (error) {
       console.error('Erro ao listar posts:', error);
       return NextResponse.json(
