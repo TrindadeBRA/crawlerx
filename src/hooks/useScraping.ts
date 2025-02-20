@@ -16,7 +16,7 @@ export function useScraping() {
 
     const { mutateAsync: scrapePosts, isPending } = useMutation({
         mutationFn: async (data: ScrapingData) => {
-            const response = await fetch('/api/scraping', {
+            const response = await fetch('/api/scraping/get-results', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

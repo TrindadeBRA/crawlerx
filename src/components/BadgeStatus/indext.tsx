@@ -15,8 +15,8 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
     }
 
     const statusColor = {
-        [PostStatus.IMPORTED]: 'bg-yellow-100 text-yellow-800',
-        [PostStatus.PROCESSED]: 'bg-green-100 text-green-800',
+        [PostStatus.IMPORTED]: 'bg-brand-600 text-white font-bold border border-brand-600',
+        [PostStatus.PROCESSED]: 'bg-brand-100 text-brand-600 font-bold border border-brand-600',
     }
 
     const statusTooltip = {

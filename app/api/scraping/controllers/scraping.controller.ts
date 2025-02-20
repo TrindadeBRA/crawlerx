@@ -81,4 +81,63 @@ export class ScrapingController {
       );
     }
   }
+
+  async importArticle(request: NextRequest) {
+    try {
+      const body = await request.json();
+
+      if (!body.url || !body.domain) {
+        return NextResponse.json(
+          { message: "URL e domínio são obrigatórios" },
+          { status: 400 }
+        );
+      }
+
+      let articleData;
+      switch (body.domain) {
+        case "tecmundo.com.br":
+          // Implementar
+          break;
+        case "developer-tech.com":
+          // Implementar
+          break;
+        case "olhardigital.com.br":
+          const olharDigitalCrawler = new OlharDigitalCrawler();
+          articleData = await olharDigitalCrawler.scrapeArticle(body.url);
+          break;
+        default:
+          return NextResponse.json(
+            { message: "Domínio não suportado" },
+            { status: 400 }
+          );
+      }
+
+      if (!articleData) {
+        return NextResponse.json(
+          { message: "Não foi possível extrair os dados do artigo" },
+          { status: 400 }
+        );
+      }
+
+      // Salvar o artigo no banco
+      const postData = {
+        url: articleData.url,
+        domain: body.domain,
+        title: articleData.title,
+        content: articleData.content,
+        status: "IMPORTED",
+        isActive: true
+      };
+
+      const savedPost = await this.postsService.savePost(postData);
+      return NextResponse.json(savedPost);
+
+    } catch (error) {
+      console.error("Erro ao importar artigo:", error);
+      return NextResponse.json(
+        { message: "Erro ao importar artigo" },
+        { status: 500 }
+      );
+    }
+  }
 } 

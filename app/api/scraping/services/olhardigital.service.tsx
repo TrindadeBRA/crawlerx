@@ -1,7 +1,7 @@
 import Crawler, { Article } from "./crawlerx/crawlerx.service";
 
 class OlharDigitalCrawler extends Crawler {
-  
+
   public async getSearchResults(options: { searchParam?: string; quantity: number }): Promise<{ url: string; title: string; content: string }[]> {
     await this.init();
     const url = options.searchParam
@@ -65,8 +65,8 @@ class OlharDigitalCrawler extends Crawler {
 
   public async scrapeArticle(url: string): Promise<Article | null> {
     const selectors = {
-      title: '.tec--article__header__title',
-      content: '.tec--article__body'
+      title: '.sng-hdr h1',
+      content: 'article.sng-cnt'
     };
     return super.scrapeArticle(url, selectors);
   }

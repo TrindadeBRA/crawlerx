@@ -11,8 +11,23 @@ abstract class Crawler {
   protected page: puppeteer.Page | null = null;
 
   protected async init() {
-    this.browser = await puppeteer.launch({ headless: true });
+    this.browser = await puppeteer.launch({ 
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--disable-gpu',
+        '--window-size=1920x1080'
+      ]
+    });
     this.page = await this.browser.newPage();
+    
+    // Configurações adicionais da página
+    await this.page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
+    await this.page.setViewport({ width: 1920, height: 1080 });
+    await this.page.setDefaultNavigationTimeout(60000); // Aumenta o timeout para 60 segundos
   }
 
   protected async close() {
@@ -23,7 +38,17 @@ abstract class Crawler {
 
   protected async navigate(url: string) {
     if (!this.page) throw new Error('Página não inicializada. Chame init() primeiro.');
-    await this.page.goto(url, { waitUntil: "networkidle0", timeout: 30000 });
+
+    console.log("Navegando para:", url)
+    try {
+      await this.page.goto(url, { 
+        waitUntil: ["domcontentloaded", "networkidle0"],
+        timeout: 60000 // Aumenta o timeout para 60 segundos
+      });
+    } catch (error) {
+      console.error(`Erro ao navegar para ${url}:`, error);
+      throw error;
+    }
   }
 
   public abstract getSearchResults(options: { searchParam?: string; quantity: number }): Promise<{ url: string; title: string; content: string }[]>;
@@ -39,7 +64,12 @@ abstract class Crawler {
         const cleanHtml = (html: string) => {
           const temp = document.createElement('div');
           temp.innerHTML = html;
-          return temp.textContent || temp.innerText || '';
+          return temp.textContent?.trim()
+            .replace(/\s+/g, ' ')           // substitui múltiplos espaços por um único espaço
+            .replace(/\n+/g, '\n')          // substitui múltiplas quebras de linha por uma única
+            .replace(/\t+/g, '')            // remove tabulações
+            .replace(/^\s+|\s+$/gm, '')     // remove espaços no início e fim de cada linha
+            || '';
         };
 
         if (titleElement && contentElement) {
@@ -52,6 +82,8 @@ abstract class Crawler {
           return null;
         }
       }, selectors);
+
+      console.log("Artigo importado:", article)
 
       return article;
     } finally {

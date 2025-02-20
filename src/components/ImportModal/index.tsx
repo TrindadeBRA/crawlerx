@@ -12,10 +12,12 @@ import { Input } from '@/src/components/inputs/input';
 import { Select } from '@/src/components/inputs/select'
 import { mockCrawlerWebsites } from '@/src/mocks/mockCrawlerWebsites';
 import { useState } from 'react'
+import { useImportArticle } from '@/src/hooks/useImportArticle'
 
 export default function ImportModal() {
     const { open, handleClose } = useImportModal();
     const { scrapePosts, isPending } = useScraping()
+    const { importArticle, isPending: isImporting } = useImportArticle()
     const [searchResults, setSearchResults] = useState<Array<{
         title: string;
         url: string;
@@ -25,6 +27,7 @@ export default function ImportModal() {
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors },
     } = useForm<ImportPostsInput>({
         resolver: zodResolver(importPostsSchema),
@@ -35,9 +38,22 @@ export default function ImportModal() {
         }
     })
 
+    const platform = watch('platform')
+
+    const handleImportArticle = async (article: { url: string }) => {
+        try {
+            await importArticle({
+                url: article.url,
+                domain: platform
+            })
+        } catch (error) {
+            console.error('Erro ao importar artigo:', error)
+        }
+    }
+
     const onSubmit = async (data: ImportPostsInput) => {
         const results = await scrapePosts(data) ?? []
-        console.log('resultsXXXX', results)
+        console.log('Resultados encontrados:', results)
         setSearchResults(results)
     }
 
@@ -131,10 +147,8 @@ export default function ImportModal() {
                                                             </a>
                                                             <Button
                                                                 label='Importar'
-                                                                onClick={() => {
-                                                                    // TODO: Implementar função de importação
-                                                                    console.log('Importar artigo:', article)
-                                                                }}
+                                                                isLoading={isImporting}
+                                                                onClick={() => handleImportArticle(article)}
                                                             />
                                                         </div>
                                                     </div>
