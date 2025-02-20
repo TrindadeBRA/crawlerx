@@ -1,6 +1,6 @@
 import Crawler, { Article } from "./crawlerx/crawlerx.service";
 
-class OlharDigitalCrawler extends Crawler {
+export class OlharDigitalCrawler extends Crawler {
 
   public async getSearchResults(options: { searchParam?: string; quantity: number }): Promise<{ url: string; title: string; content: string }[]> {
     await this.init();
@@ -52,7 +52,7 @@ class OlharDigitalCrawler extends Crawler {
         return {
           title: titleElement?.textContent?.trim() || '',
           url: urlElement?.getAttribute('href') || '',
-          content: contentElement?.textContent?.trim() || ''
+          content: contentElement?.textContent?.trim() || 'Nâo possui descrição para o artigo nos cards.'
         };
       });
     }, options);
@@ -71,5 +71,3 @@ class OlharDigitalCrawler extends Crawler {
     return super.scrapeArticle(url, selectors);
   }
 }
-
-export default OlharDigitalCrawler;

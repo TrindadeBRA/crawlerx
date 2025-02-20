@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { scrapeTecmundo } from "../services/tecmundo.service";
 import { PostsService } from "../../posts/services/posts.service";
 import { scrapeDeveloperTech } from "../services/developer-tech.service";
-import OlharDigitalCrawler from "../services/olhardigital.service";
-
+import { OlharDigitalCrawler } from "../services/olhardigital.service";
+import { TecmundoCrawler } from "../services/tecmundo.service";
 export class ScrapingController {
   private postsService: PostsService;
 
@@ -27,11 +26,12 @@ export class ScrapingController {
       // Switch case para diferentes domínios
       switch (body.domain) {
         case "tecmundo.com.br":
-          data = await scrapeTecmundo({
-            searchTerm: body.searchTerm,
-            limit: body.limit
+          const tecmundoCrawler = new TecmundoCrawler();
+          data = await tecmundoCrawler.getSearchResults({
+            searchParam: body.searchTerm,
+            quantity: body.limit
           });
-          break;
+          return NextResponse.json(data);
         case "developer-tech.com":
           data = await scrapeDeveloperTech({
             searchTerm: body.searchTerm,
@@ -45,7 +45,6 @@ export class ScrapingController {
             quantity: body.limit
           });
           return NextResponse.json(data);
-          break;
         default:
           return NextResponse.json(
             { message: "Domínio não suportado" },
@@ -96,7 +95,8 @@ export class ScrapingController {
       let articleData;
       switch (body.domain) {
         case "tecmundo.com.br":
-          // Implementar
+          const tecmundoCrawler = new TecmundoCrawler();
+          articleData = await tecmundoCrawler.scrapeArticle(body.url);
           break;
         case "developer-tech.com":
           // Implementar

@@ -19,15 +19,28 @@ abstract class Crawler {
         '--disable-dev-shm-usage',
         '--disable-accelerated-2d-canvas',
         '--disable-gpu',
-        '--window-size=1920x1080'
+        '--window-size=1920x1080',
+        '--disable-extensions',           // Desabilita extensões
+        '--disable-javascript',           // Desabilita JavaScript se não for necessário
+        '--block-new-web-contents',       // Bloqueia popups
       ]
     });
     this.page = await this.browser.newPage();
     
-    // Configurações adicionais da página
+    // Otimizações adicionais
+    await this.page.setRequestInterception(true);
+    this.page.on('request', (request) => {
+      // Bloqueia recursos desnecessários
+      if (['image', 'stylesheet', 'font', 'media'].includes(request.resourceType())) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+
     await this.page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
     await this.page.setViewport({ width: 1920, height: 1080 });
-    await this.page.setDefaultNavigationTimeout(60000); // Aumenta o timeout para 60 segundos
+    await this.page.setDefaultNavigationTimeout(90000); // Aumentado para 90 segundos
   }
 
   protected async close() {
@@ -42,8 +55,8 @@ abstract class Crawler {
     console.log("Navegando para:", url)
     try {
       await this.page.goto(url, { 
-        waitUntil: ["domcontentloaded", "networkidle0"],
-        timeout: 60000 // Aumenta o timeout para 60 segundos
+        waitUntil: "domcontentloaded", // Removido networkidle0 para maior velocidade
+        timeout: 90000
       });
     } catch (error) {
       console.error(`Erro ao navegar para ${url}:`, error);

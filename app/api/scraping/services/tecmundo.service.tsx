@@ -1,107 +1,73 @@
-import puppeteer from "puppeteer";
+import Crawler, { Article } from "./crawlerx/crawlerx.service";
 
-interface ScrapeTecmundoOptions {
-  searchTerm?: string;
-  limit?: number;
-}
+export class TecmundoCrawler extends Crawler {
 
-interface Article {
-  title: string;
-  content: string;
-  url: string;
-}
+  public async getSearchResults(options: { searchParam?: string; quantity: number }): Promise<{ url: string; title: string; content: string }[]> {
+    await this.init();
+    const url = options.searchParam
+      ? `https://www.tecmundo.com.br/busca?q=${encodeURIComponent(options.searchParam)}`
+      : "https://www.tecmundo.com.br/novidades/"; //Ultimas noticias
 
-export async function scrapeTecmundo(options?: ScrapeTecmundoOptions): Promise<Article[]> {
-  try {
-    const browser = await puppeteer.launch({
-      headless: true,
-    });
-    
-    const page = await browser.newPage();
-    
-    const url = options?.searchTerm 
-      ? `https://www.tecmundo.com.br/busca?q=${encodeURIComponent(options.searchTerm)}`
-      : "https://www.tecmundo.com.br/";
-    
-    console.log('Acessando URL:', url);
-    
-    await page.goto(url, {
-      waitUntil: "networkidle0",
-      timeout: 30000
-    });
+    console.log("Acessando a página:", url)
+    await this.navigate(url);
 
-    const articles = await page.evaluate((limit) => {
-      const articles = document.querySelectorAll('.tec--list__item article.tec--card');
-      
-      const limitedArticles = limit ? Array.from(articles).slice(0, limit) : Array.from(articles);
-      
+    const results = await this.page!.evaluate((options) => {
+
+      let articles;
+      if (options.searchParam) {
+        articles = document.querySelectorAll('.tec--list__item');
+      } else {
+        articles = document.querySelectorAll('.tec--list__item');
+      }
+      console.log("Artigos encontrados:", articles)
+
+      const limitedArticles = Array.from(articles).slice(0, options.quantity);
+
       return limitedArticles.map(article => {
-        const titleElement = article.querySelector('.tec--card__title__link');
+
+        let titleElement;
+        if (options.searchParam) {
+          titleElement = article.querySelector('a.tec--card__title__link');
+        } else {
+          titleElement = article.querySelector('a.tec--card__title__link');
+        }
+
+        let urlElement;
+        if (options.searchParam) {
+          urlElement = article.querySelector('a.tec--card__title__link');
+        } else {
+          urlElement = article.querySelector('a.tec--card__title__link');
+        }
+
+        let contentElement;
+        if (options.searchParam) {
+          contentElement = article.querySelector('.tec--card__body__description');
+        } else {
+          contentElement = article.querySelector('.tec--card__body__description');
+        }
+
+        console.log("titleElement", titleElement)
+        console.log("urlElement", urlElement)
+
         return {
           title: titleElement?.textContent?.trim() || '',
-          url: titleElement?.getAttribute('href') || ''
+          url: urlElement?.getAttribute('href') || '',
+          content: contentElement?.textContent?.trim() || 'Nâo possui descrição para o artigo nos cards.'
         };
       });
-    }, options?.limit);
+    }, options);
 
+    await this.close();
 
-
-    const detailedArticles: Article[] = [];
-
-    for (const article of articles) {
-      try {
-        await page.goto(article.url, {
-          waitUntil: "domcontentloaded",
-        });
-
-        const articleData = await page.evaluate(() => {
-          const titleElement = document.querySelector('.tec--article__header__title');
-          const contentElement = document.querySelector('.tec--article__body');
-          
-          // Função auxiliar para limpar tags HTML
-          const cleanHtml = (html: string) => {
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
-            return temp.textContent || temp.innerText || '';
-          };
-          
-          const title = titleElement?.textContent?.trim();
-          const content = contentElement?.innerHTML;
-          
-          if (!title || !content) {
-            console.error('Dados do artigo incompletos:', { title, content });
-            return null;
-          }
-          
-          return {
-            title: cleanHtml(title),
-            content: cleanHtml(content),
-            url: window.location.href
-          };
-        });
-
-        if (articleData) {
-
-          console.log("Artigo extraído:", {
-            title: articleData.title,
-            url: articleData.url,
-            contentPreview: articleData.content.substring(0, 150) + "..."
-          });
-
-          detailedArticles.push(articleData);
-        } else {
-          console.error(`Não foi possível extrair dados do artigo: ${article.url}`);
-        }
-      } catch (error) {
-        console.error(`Erro ao extrair artigo ${article.url}:`, error);
-      }
-    }
-
-    await browser.close();
-
-    return detailedArticles;
-  } catch (error) {
-    console.error("Erro ao fazer scraping do TecMundo:", error);
-    throw error;
+    console.log(results);
+    return results;
   }
-} 
+
+  public async scrapeArticle(url: string): Promise<Article | null> {
+    const selectors = {
+      title: 'h1#js-article-title',
+      content: '.tec--article__body'
+    };
+    return super.scrapeArticle(url, selectors);
+  }
+}
