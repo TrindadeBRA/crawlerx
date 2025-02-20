@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PostsService } from "../../posts/services/posts.service";
-import { scrapeDeveloperTech } from "../services/developer-tech.service";
+import { DeveloperTechCrawler } from "../services/developer-tech.service";
 import { OlharDigitalCrawler } from "../services/olhardigital.service";
 import { TecmundoCrawler } from "../services/tecmundo.service";
 export class ScrapingController {
@@ -33,11 +33,12 @@ export class ScrapingController {
           });
           return NextResponse.json(data);
         case "developer-tech.com":
-          data = await scrapeDeveloperTech({
-            searchTerm: body.searchTerm,
-            limit: body.limit
+          const developerTechCrawler = new DeveloperTechCrawler();
+          data = await developerTechCrawler.getSearchResults({
+            searchParam: body.searchTerm,
+            quantity: body.limit
           });
-          break;
+          return NextResponse.json(data);
         case "olhardigital.com.br":
           const olharDigitalCrawler = new OlharDigitalCrawler();
           data = await olharDigitalCrawler.getSearchResults({
@@ -52,26 +53,6 @@ export class ScrapingController {
           );
       }
 
-      // Salvar os artigos no banco
-      // for (const articleData of data) {
-      //   try {
-      //     const postData: any = { //CreatePostData
-      //       url: articleData.url,
-      //       domain: new URL(articleData.url).hostname,
-      //       title: articleData.title,
-      //       content: articleData.content
-      //     };
-
-      //     const existingPost = await this.postsService.findPostByUrl(postData.url);
-      //     if (!existingPost) {
-      //       await this.postsService.savePost(postData);
-      //     }
-      //   } catch (error) {
-      //     console.error('Erro no processamento do artigo:', error);
-      //   }
-      // }
-
-      return NextResponse.json(data);
     } catch (error) {
       console.error("Erro durante web scraping:", error);
       return NextResponse.json(
@@ -99,7 +80,8 @@ export class ScrapingController {
           articleData = await tecmundoCrawler.scrapeArticle(body.url);
           break;
         case "developer-tech.com":
-          // Implementar
+          const developerTechCrawler = new DeveloperTechCrawler();
+          articleData = await developerTechCrawler.scrapeArticle(body.url);
           break;
         case "olhardigital.com.br":
           const olharDigitalCrawler = new OlharDigitalCrawler();

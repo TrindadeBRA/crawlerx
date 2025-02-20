@@ -1,107 +1,73 @@
-import puppeteer from "puppeteer";
-import { stripHtml } from "../utils";
+import Crawler, { Article } from "./crawlerx/crawlerx.service";
 
-interface ScrapeDeveloperTechOptions {
-  searchTerm?: string;
-  limit?: number;
-}
+export class DeveloperTechCrawler extends Crawler {
 
-interface Article {
-  title: string;
-  content?: string;
-  url: string;
-}
+  public async getSearchResults(options: { searchParam?: string; quantity: number }): Promise<{ url: string; title: string; content: string }[]> {
+    await this.init();
+    const url = options.searchParam
+      ? `https://www.developer-tech.com/?s=${encodeURIComponent(options.searchParam)}`
+      : "https://www.developer-tech.com/news/";
 
-export async function scrapeDeveloperTech(options?: ScrapeDeveloperTechOptions): Promise<Article[]> {
-  try {
-    const browser = await puppeteer.launch({
-      headless: true,
-    });
-    
-    const page = await browser.newPage();
-    
-    const url = options?.searchTerm 
-      ? `https://www.developer-tech.com/?s=${encodeURIComponent(options.searchTerm)}`
-      : "https://www.developer-tech.com/";
-    
-    console.log('Acessando URL:', url);
-    
-    await page.goto(url, {
-      waitUntil: "networkidle0",
-      timeout: 30000
-    });
+    console.log("Acessando a página:", url)
+    await this.navigate(url);
 
-    const articles = await page.evaluate((limit) => {
-      const articles = document.querySelectorAll('.archive-post');
-      const articleList: Article[] = [];
-      
-      articles.forEach((article, index) => {
-        if (limit && index >= limit) return;
-        
-        const titleElement = article.querySelector('h3 a');
-        
-        if (titleElement) {
-          articleList.push({
-            title: titleElement.textContent?.trim() || '',
-            url: titleElement.getAttribute('href') || ''
-          });
-        }
-      });
+    const results = await this.page!.evaluate((options) => {
 
-      return articleList;
-    }, options?.limit);
-
-    const detailedArticles: Article[] = [];
-
-    for (const article of articles) {
-      try {
-        await page.goto(article.url, {
-          waitUntil: "domcontentloaded",
-        });
-
-        const articleData = await page.evaluate(() => {
-          const titleElement = document.querySelector('h1.entry-title');
-          const contentElement = document.querySelector('section.entry-content');
-          
-          if (!titleElement || !contentElement) {
-            return null;
-          }
-
-          return {
-            title: titleElement.textContent || '',
-            content: contentElement.textContent || '',
-            url: window.location.href
-          };
-        });
-
-        if (articleData) {
-          const cleanArticle = {
-            title: await stripHtml(articleData.title),
-            content: await stripHtml(articleData.content),
-            url: articleData.url
-          };
-
-          console.log("Artigo extraído:", {
-            title: cleanArticle.title,
-            content: cleanArticle.content.substring(0, 150) + "...",
-            url: cleanArticle.url,
-          });
-
-          
-          detailedArticles.push(cleanArticle);
-        } else {
-          console.error(`Não foi possível extrair dados do artigo: ${article.url}`);
-        }
-      } catch (error) {
-        console.error(`Erro ao extrair artigo ${article.url}:`, error);
+      let articles;
+      if (options.searchParam) {
+        articles = document.querySelectorAll('.archive-post');
+      } else {
+        articles = document.querySelectorAll('.archive-post');
       }
-    }
+      console.log("Artigos encontrados:", articles)
 
-    await browser.close();
+      const limitedArticles = Array.from(articles).slice(0, options.quantity);
 
-    return detailedArticles;
-  } catch (error) {
-    console.error("Erro ao fazer scraping do DeveloperTech:", error);
-    throw error;
+      return limitedArticles.map(article => {
+
+        let titleElement;
+        if (options.searchParam) {
+          titleElement = article.querySelector('.article-header h3 a');
+        } else {
+          titleElement = article.querySelector('.article-header h3 a');
+        }
+
+        let urlElement;
+        if (options.searchParam) {
+          urlElement = article.querySelector('.article-header h3 a');
+        } else {
+          urlElement = article.querySelector('.article-header h3 a');
+        }
+
+        let contentElement;
+        if (options.searchParam) {
+          contentElement = article.querySelector('.post-text');
+        } else {
+          contentElement = article.querySelector('.post-text');
+        }
+
+        console.log("titleElement", titleElement)
+        console.log("urlElement", urlElement)
+
+        return {
+          title: titleElement?.textContent?.trim() || '',
+          url: urlElement?.getAttribute('href') || '',
+          content: contentElement?.textContent?.trim() || 'Nâo possui descrição para o artigo nos cards.'
+        };
+      });
+    }, options);
+
+    await this.close();
+
+    console.log(results);
+    return results;
   }
-} 
+
+  public async scrapeArticle(url: string): Promise<Article | null> {
+    const selectors = {
+      title: '.entry-title',
+      content: '.entry-content'
+    };
+    return super.scrapeArticle(url, selectors);
+  }
+}
