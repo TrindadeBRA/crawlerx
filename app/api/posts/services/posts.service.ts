@@ -7,6 +7,12 @@ interface PaginatedResult<T> {
   pageCount: number;
 }
 
+interface OriginData {
+  domain: string;
+  totalPosts: number;
+  posts: Post[];
+}
+
 export class PostsService {
   private postsRepository: PostsRepository;
 
@@ -61,5 +67,27 @@ export class PostsService {
 
   async updateStatus(postId: number, status: PostStatus): Promise<Post> {
     return this.postsRepository.updateStatus(postId, status);
+  }
+
+  async listOrigins(): Promise<OriginData[]> {
+    const posts = await this.postsRepository.findAll();
+    const originMap = new Map<string, OriginData>();
+
+    posts.forEach(post => {
+      const domain = post.domain.replace(/^www\./, '');
+      if (!originMap.has(domain)) {
+        originMap.set(domain, {
+          domain,
+          totalPosts: 0,
+          posts: []
+        });
+      }
+      const originData = originMap.get(domain)!;
+      originData.totalPosts++;
+      originData.posts.push(post);
+    });
+
+    return Array.from(originMap.values())
+      .sort((a, b) => b.totalPosts - a.totalPosts);
   }
 } 

@@ -51,5 +51,16 @@ export class PostsController {
     }
   }
 
-  
+  async listOrigins() {
+    try {
+      const origins = await this.postsService.listOrigins();
+      return NextResponse.json(origins);
+    } catch (error) {
+      console.error('Erro ao listar origens:', error);
+      return NextResponse.json(
+        { error: 'Erro interno ao buscar origens' },
+        { status: 500 }
+      );
+    }
+  }
 } 

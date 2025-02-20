@@ -7,6 +7,7 @@ import ImportModal from "../../src/components/ImportModal";
 import Notification from "../../src/components/Notification";
 import TablePosts from "../../src/components/TablePosts";
 import { useManualImportModal } from "@/src/hooks/usemanualImportModal";
+import { ListBulletIcon } from "@heroicons/react/24/solid";
 
 export default function Home() {
 
@@ -28,6 +29,7 @@ export default function Home() {
       <Header 
         title="Importações" 
         description="Lista de todos os posts importados no sistema."
+        icon={ListBulletIcon}
       >
         <button 
           type="button" 

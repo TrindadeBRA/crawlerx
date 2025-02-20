@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 
 const navigation = [
   { name: 'Importações', href: '/', icon: HomeIcon },
@@ -84,7 +85,7 @@ export default function Sidebar() {
                       <ul className="-mx-2 space-y-1">
                         {navigationWithCurrent.map((item) => (
                           <li key={item.name}>
-                            <a
+                            <Link
                               href={item.href}
                               className={classNames(
                                 item.current
@@ -101,7 +102,7 @@ export default function Sidebar() {
                                 )}
                               />
                               {item.name}
-                            </a>
+                            </Link>
                           </li>
                         ))}
                       </ul>
@@ -162,7 +163,7 @@ export default function Sidebar() {
                   <ul className="-mx-2 space-y-1">
                     {navigationWithCurrent.map((item) => (
                       <li key={item.name}>
-                        <a
+                        <Link
                           href={item.href}
                           className={classNames(
                             item.current
@@ -179,7 +180,7 @@ export default function Sidebar() {
                             )}
                           />
                           {item.name}
-                        </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>
