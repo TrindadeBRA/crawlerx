@@ -58,7 +58,11 @@ export default function Origins() {
     <div className="">
       <Header title="Origens" description="Lista de todas as origens de posts." icon={ArrowsRightLeftIcon} />
       
-      {loading && <p className="text-center">Carregando...</p>}
+      {loading && (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+        </div>
+      )}
       {error && <p className="text-red-500 text-center">{error}</p>}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
