@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNotification } from './useNotification'
-import { useImportModal } from './useImportModal'
+// import { useImportModal } from './useImportModal'
 
 interface ScrapingData {
     platform: string
@@ -10,11 +10,11 @@ interface ScrapingData {
 
 export function useScraping() {
     const { showNotification } = useNotification()
-    const { handleClose } = useImportModal()
+    // const { handleClose } = useImportModal()
     const queryClient = useQueryClient()
 
 
-    const { mutate: scrapePosts, isPending } = useMutation({
+    const { mutateAsync: scrapePosts, isPending } = useMutation({
         mutationFn: async (data: ScrapingData) => {
             const response = await fetch('/api/scraping', {
                 method: 'POST',
@@ -41,7 +41,7 @@ export function useScraping() {
                 'Posts importados com sucesso',
                 'success'
             )
-            handleClose()
+            // handleClose()
         },
         onError: (error: Error) => {
             showNotification(

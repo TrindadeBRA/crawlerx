@@ -11,10 +11,16 @@ import { Button } from '@/src/components/inputs/button'
 import { Input } from '@/src/components/inputs/input';
 import { Select } from '@/src/components/inputs/select'
 import { mockCrawlerWebsites } from '@/src/mocks/mockCrawlerWebsites';
+import { useState } from 'react'
 
 export default function ImportModal() {
     const { open, handleClose } = useImportModal();
     const { scrapePosts, isPending } = useScraping()
+    const [searchResults, setSearchResults] = useState<Array<{
+        title: string;
+        url: string;
+        content: string;
+    }>>([]);
 
     const {
         register,
@@ -29,8 +35,10 @@ export default function ImportModal() {
         }
     })
 
-    const onSubmit = (data: ImportPostsInput) => {
-        scrapePosts(data)
+    const onSubmit = async (data: ImportPostsInput) => {
+        const results = await scrapePosts(data) ?? []
+        console.log('resultsXXXX', results)
+        setSearchResults(results)
     }
 
     return (
@@ -88,15 +96,53 @@ export default function ImportModal() {
                                             placeholder="Digite a quantidade de posts"
                                         />
 
-                                        <div className="mt-auto border-t pt-4">
+                                        <div className="border-t pt-4">
                                             <Button
                                                 type="submit"
                                                 isLoading={isPending}
-                                                label="Importar"
+                                                label="Pesquisar"
                                             />
                                         </div>
                                     </div>
                                 </form>
+
+                                {searchResults.length > 0 && (
+                                    <div className='p-4 mt-6 border-t'>
+                                        <>
+                                            <h3 className="text-base font-semibold text-gray-900 mb-4">
+                                                Selecione o artigo para ser importado
+                                            </h3>
+                                            <div className='flex flex-col gap-4'>
+                                                {searchResults.map((article, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className='p-4 bg-gray-50 rounded-lg border hover:border-primary transition-colors'
+                                                    >
+                                                        <h4 className="font-medium mb-2">{article.title}</h4>
+                                                        <p className="text-sm text-gray-600 mb-4">{article.content}</p>
+                                                        <div className="flex justify-between items-center">
+                                                            <a
+                                                                href={article.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-sm text-primary hover:underline"
+                                                            >
+                                                                Ver original
+                                                            </a>
+                                                            <Button
+                                                                label='Importar'
+                                                                onClick={() => {
+                                                                    // TODO: Implementar função de importação
+                                                                    console.log('Importar artigo:', article)
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    </div>
+                                )}
                             </div>
                         </DialogPanel>
                     </div>

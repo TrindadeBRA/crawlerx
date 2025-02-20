@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { scrapeTecmundo } from "../services/tecmundo.service";
 import { PostsService } from "../../posts/services/posts.service";
 import { scrapeDeveloperTech } from "../services/developer-tech.service";
+import OlharDigitalCrawler from "../services/olhardigital.service";
 
 export class ScrapingController {
   private postsService: PostsService;
@@ -22,7 +23,7 @@ export class ScrapingController {
       }
 
       let data;
-      
+
       // Switch case para diferentes domínios
       switch (body.domain) {
         case "tecmundo.com.br":
@@ -37,6 +38,14 @@ export class ScrapingController {
             limit: body.limit
           });
           break;
+        case "olhardigital.com.br":
+          const olharDigitalCrawler = new OlharDigitalCrawler();
+          data = await olharDigitalCrawler.getSearchResults({
+            searchParam: body.searchTerm,
+            quantity: body.limit
+          });
+          return NextResponse.json(data);
+          break;
         default:
           return NextResponse.json(
             { message: "Domínio não suportado" },
@@ -45,23 +54,23 @@ export class ScrapingController {
       }
 
       // Salvar os artigos no banco
-      for (const articleData of data) {
-        try {
-          const postData: any = { //CreatePostData
-            url: articleData.url,
-            domain: new URL(articleData.url).hostname,
-            title: articleData.title,
-            content: articleData.content
-          };
+      // for (const articleData of data) {
+      //   try {
+      //     const postData: any = { //CreatePostData
+      //       url: articleData.url,
+      //       domain: new URL(articleData.url).hostname,
+      //       title: articleData.title,
+      //       content: articleData.content
+      //     };
 
-          const existingPost = await this.postsService.findPostByUrl(postData.url);
-          if (!existingPost) {
-            await this.postsService.savePost(postData);
-          }
-        } catch (error) {
-          console.error('Erro no processamento do artigo:', error);
-        }
-      }
+      //     const existingPost = await this.postsService.findPostByUrl(postData.url);
+      //     if (!existingPost) {
+      //       await this.postsService.savePost(postData);
+      //     }
+      //   } catch (error) {
+      //     console.error('Erro no processamento do artigo:', error);
+      //   }
+      // }
 
       return NextResponse.json(data);
     } catch (error) {

@@ -18,8 +18,9 @@ export const importPostsSchema = z.object({
   platform: z.string()
     .min(1, 'A plataforma é obrigatória'),
   searchTerm: z.string()
-    .min(1, 'O termo de busca é obrigatório')
-    .min(3, 'O termo de busca deve ter pelo menos 3 caracteres'),
+    .optional()
+    .default('')
+    .transform(val => val ?? ''),
   quantity: z.number()
     .min(1, 'A quantidade deve ser maior que 0')
     .max(10, 'A quantidade máxima é 10')
