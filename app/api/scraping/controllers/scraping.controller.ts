@@ -3,6 +3,7 @@ import { PostsService } from "../../posts/services/posts.service";
 import { DeveloperTechCrawler } from "../services/developer-tech.service";
 import { OlharDigitalCrawler } from "../services/olhardigital.service";
 import { TecmundoCrawler } from "../services/tecmundo.service";
+import { OmelhoreslivrosCrawler } from "../services/osmelhoreslivros.service";
 export class ScrapingController {
   private postsService: PostsService;
 
@@ -46,6 +47,13 @@ export class ScrapingController {
             quantity: body.limit
           });
           return NextResponse.json(data);
+        case "osmelhoreslivros.com.br":
+          const omelhoreslivrosCrawler = new OmelhoreslivrosCrawler();
+          data = await omelhoreslivrosCrawler.getSearchResults({
+            searchParam: body.searchTerm,
+            quantity: body.limit
+          });
+          return NextResponse.json(data);
         default:
           return NextResponse.json(
             { message: "Domínio não suportado" },
@@ -73,6 +81,15 @@ export class ScrapingController {
         );
       }
 
+      // Verificar se o artigo já existe
+      const existingPost = await this.postsService.findPostByUrl(body.url);
+      if (existingPost) {
+        return NextResponse.json(
+          { message: "Este artigo já foi importado anteriormente" },
+          { status: 400 }
+        );
+      }
+
       let articleData;
       switch (body.domain) {
         case "tecmundo.com.br":
@@ -86,6 +103,10 @@ export class ScrapingController {
         case "olhardigital.com.br":
           const olharDigitalCrawler = new OlharDigitalCrawler();
           articleData = await olharDigitalCrawler.scrapeArticle(body.url);
+          break;
+        case "osmelhoreslivros.com.br":
+          const omelhoreslivrosCrawler = new OmelhoreslivrosCrawler();
+          articleData = await omelhoreslivrosCrawler.scrapeArticle(body.url);
           break;
         default:
           return NextResponse.json(

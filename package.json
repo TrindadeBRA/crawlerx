@@ -6,7 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:format": "prisma format",
+    "prisma:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
