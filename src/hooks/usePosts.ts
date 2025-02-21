@@ -7,7 +7,7 @@ export function usePosts() {
   const queryClient = useQueryClient()
   const { showNotification } = useNotification()
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(30)
 
   // Query para listar os posts
   const { data, isLoading } = useQuery({

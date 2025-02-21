@@ -6,6 +6,6 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   return postsController.listPosts({ 
     page: searchParams.get('page') ?? '1',
-    pageSize: searchParams.get('pageSize') ?? '10'
+    pageSize: searchParams.get('pageSize') ?? '30'
   });
 }

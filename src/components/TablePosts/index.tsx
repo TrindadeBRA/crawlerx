@@ -90,12 +90,12 @@ export default function TablePosts() {
     state: {
       pagination: {
         pageIndex: page - 1,
-        pageSize: 10,
+        pageSize: 30,
       },
     },
     onPaginationChange: (updater) => {
       if (typeof updater === 'function') {
-        const newState = updater({ pageIndex: page - 1, pageSize: 10 });
+        const newState = updater({ pageIndex: page - 1, pageSize: 30 });
         setPage(newState.pageIndex + 1);
       }
     },
