@@ -8,6 +8,7 @@ import Notification from "../../src/components/Notification";
 import TablePosts from "../../src/components/TablePosts";
 import { useManualImportModal } from "@/src/hooks/usemanualImportModal";
 import { ListBulletIcon } from "@heroicons/react/24/solid";
+import ViewPostModal from '@/src/components/ViewPostModal'
 
 export default function Home() {
 
@@ -49,6 +50,7 @@ export default function Home() {
       <TablePosts />
       <ImportModal/>
       <ImportManualModal/>
+      <ViewPostModal />
       <Notification />
     </div>
   );

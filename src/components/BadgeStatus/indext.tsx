@@ -5,9 +5,10 @@ import { Tooltip } from 'react-tooltip'
 
 interface BadgeStatusProps {
     status: PostStatus;
+    disableTooltip?: boolean;
 }
 
-export function BadgeStatus({ status }: BadgeStatusProps) {
+export function BadgeStatus({ status, disableTooltip = false }: BadgeStatusProps) {
 
     const translateStatus = {
         [PostStatus.IMPORTED]: 'Importado',
@@ -37,16 +38,19 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
     return (
         <>
             <div>
-                <span className={twMerge(
-                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium cursor-pointer',
-                    statusColor[status]
-                )}
-                    data-tooltip-id="my-tooltip"
-                    data-tooltip-content={statusTooltip[status]}>
+                <span
+                    className={twMerge(
+                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium cursor-pointer',
+                        statusColor[status]
+                    )}
+                    data-tooltip-id={disableTooltip ? undefined : 'my-tooltip'}
+                    data-tooltip-content={statusTooltip[status]}
+                >
 
                     {translateStatus[status]}
+
                 </span>
-                <Tooltip id="my-tooltip" />
+                {!disableTooltip && <Tooltip id="my-tooltip" />}
             </div>
         </>
     )

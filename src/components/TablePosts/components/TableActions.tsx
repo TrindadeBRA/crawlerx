@@ -1,6 +1,7 @@
 import { EyeIcon, PhotoIcon, TrashIcon, DocumentTextIcon, ArrowUpCircleIcon } from '@heroicons/react/24/solid';
 import { twMerge } from 'tailwind-merge';
 import { TableActionsProps } from '../types';
+import { useViewPostModal } from '@/src/hooks/useViewPostModal';
 
 export function TableActions({
   post,
@@ -10,6 +11,8 @@ export function TableActions({
   isRemoving,
   processingQueue
 }: TableActionsProps) {
+  const { handleOpen } = useViewPostModal();
+
   return (
     <>
       <button
@@ -21,7 +24,7 @@ export function TableActions({
       </button>
 
       <button
-        onClick={() => window.open(post.url, '_blank')}
+        onClick={() => handleOpen(post)}
         className="text-primary hover:text-primary/80 mr-4"
       >
         <EyeIcon className="size-5" />
