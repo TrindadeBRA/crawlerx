@@ -43,7 +43,14 @@ export default function TablePosts() {
     }),
     columnHelper.accessor('status', {
       header: 'Status',
-      cell: (info) => <BadgeStatus status={info.getValue()} />,
+      cell: (info) => (
+        <div className="flex items-center gap-2">
+          <BadgeStatus status={info.getValue()} />
+          {processingQueue.includes(info.row.original.id) && (
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-700 border-t-transparent" />
+          )}
+        </div>
+      ),
     }),
     columnHelper.accessor('createdAt', {
       header: 'Data de Criação',

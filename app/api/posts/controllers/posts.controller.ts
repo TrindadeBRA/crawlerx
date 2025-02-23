@@ -30,10 +30,22 @@ export class PostsController {
       const savedPost = await this.postsService.savePost(postData);
       return NextResponse.json({ data: savedPost });
     } catch (error) {
-      console.error('Erro ao salvar post:', error);
+      console.error('Erro detalhado ao salvar post:', error);
+      
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Erro interno ao salvar post';
+
       return NextResponse.json(
-        { error: 'Erro ao salvar post' },
-        { status: 500 }
+        { 
+          error: errorMessage,
+          details: error instanceof Error ? error.stack : undefined
+        }, 
+        { 
+          status: error instanceof Error && error.message.includes('URL já existe') 
+            ? 409 
+            : 500 
+        }
       );
     }
   }

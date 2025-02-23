@@ -1,62 +1,21 @@
 import OpenAI from 'openai';
 import { agents } from '../agents';
-import async from 'async';
 
-// Definindo interfaces para as tasks
-interface BaseTask {
+interface Task {
   type: 'processArticle' | 'generateHtml' | 'generateImagePrompt' | 'generateImage' | 'extractTitle' | 'createSeoDescription';
+  title?: string;
+  content?: string;
+  processedArticle?: string;
+  prompt?: string;
 }
-
-interface ProcessArticleTask extends BaseTask {
-  type: 'processArticle';
-  title: string;
-  content: string;
-}
-
-interface GenerateHtmlTask extends BaseTask {
-  type: 'generateHtml';
-  processedArticle: string;
-}
-
-interface ExtractTitleTask extends BaseTask {
-  type: 'extractTitle';
-  processedArticle: string;
-}
-
-interface CreateSeoDescriptionTask extends BaseTask {
-  type: 'createSeoDescription';
-  processedArticle: string;
-}
-
-interface GenerateImagePromptTask extends BaseTask {
-  type: 'generateImagePrompt';
-  processedArticle: string;
-}
-
-interface GenerateImageTask extends BaseTask {
-  type: 'generateImage';
-  prompt: string;
-}
-
-type Task = ProcessArticleTask | GenerateHtmlTask | ExtractTitleTask | CreateSeoDescriptionTask | GenerateImagePromptTask | GenerateImageTask;
 
 export class IARepository {
   private client: OpenAI;
-  private queue: async.QueueObject<Task>;
 
   constructor() {
     this.client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
-
-    // Definindo o worker da fila com tipagem correta
-    this.queue = async.queue<Task, string>(async (task: Task): Promise<string> => {
-      try {
-        return await this.executeWithRetries(task);
-      } catch (error) {
-        throw error;
-      }
-    }, 1);
   }
 
   private async executeWithRetries(task: Task, maxRetries = 3): Promise<string> {
@@ -65,21 +24,27 @@ export class IARepository {
         let result: string;
         switch (task.type) {
           case 'processArticle':
+            if (!task.title || !task.content) throw new Error('Title and content are required');
             result = await this.executeProcessArticle(task.title, task.content);
             break;
           case 'generateHtml':
+            if (!task.processedArticle) throw new Error('Processed article is required');
             result = await this.executeGenerateHtml(task.processedArticle);
             break;
           case 'generateImagePrompt':
+            if (!task.processedArticle) throw new Error('Processed article is required');
             result = await this.executeGenerateImagePrompt(task.processedArticle);
             break;
           case 'generateImage':
+            if (!task.prompt) throw new Error('Prompt is required');
             result = await this.executeGenerateImage(task.prompt);
             break;
           case 'extractTitle':
+            if (!task.processedArticle) throw new Error('Processed article is required');
             result = await this.executeExtractTitle(task.processedArticle);
             break;
           case 'createSeoDescription':
+            if (!task.processedArticle) throw new Error('Processed article is required');
             result = await this.executeCreateSeoDescription(task.processedArticle);
             break;
           default:
@@ -199,57 +164,26 @@ export class IARepository {
   }
 
   async processArticle(title: string, content: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.queue.push({ type: 'processArticle', title, content }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result as string);
-      });
-    });
+    return this.executeWithRetries({ type: 'processArticle', title, content });
   }
 
   async generateHtmlContent(processedArticle: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.queue.push({ type: 'generateHtml', processedArticle }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result as string);
-      });
-    });
+    return this.executeWithRetries({ type: 'generateHtml', processedArticle });
   }
 
   async extractTitle(processedArticle: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.queue.push({ type: 'extractTitle', processedArticle }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result as string);
-      });
-    });
+    return this.executeWithRetries({ type: 'extractTitle', processedArticle });
   }
 
   async createSeoDescription(processedArticle: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.queue.push({ type: 'createSeoDescription', processedArticle }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result as string);
-      });
-    });
+    return this.executeWithRetries({ type: 'createSeoDescription', processedArticle });
   }
 
   async generateImagePrompt(processedArticle: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.queue.push({ type: 'generateImagePrompt', processedArticle }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result as string);
-      });
-    });
+    return this.executeWithRetries({ type: 'generateImagePrompt', processedArticle });
   }
 
   async generateImage(prompt: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.queue.push({ type: 'generateImage', prompt }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result as string);
-      });
-    });
+    return this.executeWithRetries({ type: 'generateImage', prompt });
   }
-
 }

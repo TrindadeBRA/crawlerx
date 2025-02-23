@@ -20,7 +20,7 @@ export class PostsService {
     this.postsRepository = new PostsRepository();
   }
 
-  async savePost(data: any): Promise<Post> { //CreatePostData Type
+  async savePost(data: any): Promise<Post> {
     // Validação inicial dos dados
     if (!data || typeof data !== 'object') {
       throw new Error('Dados inválidos: payload deve ser um objeto');
@@ -29,9 +29,15 @@ export class PostsService {
     // Validação dos campos obrigatórios
     const requiredFields = ['url', 'domain', 'title', 'content'];
     for (const field of requiredFields) {
-      if (!data[field as keyof any]) {  //CreatePostData Type
+      if (!data[field as keyof any]) {
         throw new Error(`Campo obrigatório ausente: ${field}`);
       }
+    }
+
+    // Verificar se a URL já existe
+    const existingPost = await this.postsRepository.findByUrl(data.url.trim());
+    if (existingPost) {
+      throw new Error('URL já existe no banco de dados');
     }
 
     // Sanitização e preparação dos dados

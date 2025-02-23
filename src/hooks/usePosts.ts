@@ -112,15 +112,22 @@ export function usePosts() {
         body: JSON.stringify(postData),
       })
 
+      const data = await response.json()
+      
       if (!response.ok) {
-        throw new Error('Falha ao salvar o post')
+        const errorMessage = data.error?.includes('URL já existe')
+          ? `A URL "${postData.url}" já está cadastrada no sistema`
+          : data.error || 'Erro ao importar artigo'
+        
+        throw new Error(errorMessage)
       }
 
-      return response.json()
+      return data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
       showNotification(
+        
         'Sucesso',
         'Post salvo com sucesso!',
         'success'
@@ -128,8 +135,8 @@ export function usePosts() {
     },
     onError: (error: Error) => {
       showNotification(
-        'Erro',
-        error.message || 'Erro ao salvar o post',
+        'Erro na Importação',
+        error.message.replace('Error:', '').trim(),
         'error'
       )
     }

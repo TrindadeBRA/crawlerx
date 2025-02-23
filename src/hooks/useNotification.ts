@@ -17,11 +17,25 @@ export const useNotification = create<NotificationStore>((set) => ({
   message: '',
   type: 'success',
   showNotification: (title, message, type) => {
+    // Limpa qualquer timeout existente
+    if (window._notificationTimeout) {
+      clearTimeout(window._notificationTimeout)
+    }
+
+    // Mostra a nova notificação
     set({ isOpen: true, title, message, type })
-    // Fecha a notificação após 3 segundos
-    setTimeout(() => {
+
+    // Define um novo timeout
+    window._notificationTimeout = setTimeout(() => {
       set({ isOpen: false })
-    }, 3000)
+    }, 5000) // Aumentei para 5 segundos para dar mais tempo de leitura
   },
   hideNotification: () => set({ isOpen: false })
-})) 
+}))
+
+// Adiciona a tipagem para a variável global
+declare global {
+  interface Window {
+    _notificationTimeout: NodeJS.Timeout | undefined
+  }
+} 

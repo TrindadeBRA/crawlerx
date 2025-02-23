@@ -35,7 +35,18 @@ export default function ImportManualModal() {
             ...data,
             domain: extractDomain(data.url),
             isActive: true,
-            status: 'IMPORTED'
+            status: 'IMPORTED',
+            
+            processed_title: null,
+            processed_content: null,
+            processed_full_post: null,
+            processed_seo_content: null,
+            processed_image_prompt: null,
+            processed_image_url: null,
+            wp_image_id: null,
+            wp_image_url: null,
+            wp_post_id: null,
+            wp_slug: null
         })
 
         reset()
