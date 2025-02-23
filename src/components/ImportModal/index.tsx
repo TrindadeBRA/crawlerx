@@ -17,12 +17,13 @@ import { useImportArticle } from '@/src/hooks/useImportArticle'
 export default function ImportModal() {
     const { open, handleClose } = useImportModal();
     const { scrapePosts, isPending } = useScraping()
-    const { importArticle, isPending: isImporting } = useImportArticle()
+    const { importArticle } = useImportArticle()
     const [searchResults, setSearchResults] = useState<Array<{
         title: string;
         url: string;
         content: string;
     }>>([]);
+    const [importingArticleUrl, setImportingArticleUrl] = useState<string | null>(null);
 
     const {
         register,
@@ -42,12 +43,15 @@ export default function ImportModal() {
 
     const handleImportArticle = async (article: { url: string }) => {
         try {
+            setImportingArticleUrl(article.url);
             await importArticle({
                 url: article.url,
                 domain: platform
-            })
+            });
         } catch (error) {
-            console.error('Erro ao importar artigo:', error)
+            console.error('Erro ao importar artigo:', error);
+        } finally {
+            setImportingArticleUrl(null);
         }
     }
 
@@ -145,7 +149,7 @@ export default function ImportModal() {
                                                             </a>
                                                             <Button
                                                                 label='Importar'
-                                                                isLoading={isImporting}
+                                                                isLoading={importingArticleUrl === article.url}
                                                                 onClick={() => handleImportArticle(article)}
                                                             />
                                                         </div>
