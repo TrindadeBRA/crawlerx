@@ -63,4 +63,30 @@ export class PostsController {
       );
     }
   }
+
+  async updatePost(postId: number, postData: any) {
+    try {
+      const updatedPost = await this.postsService.updatePost(postId, postData);
+      return NextResponse.json({ data: updatedPost });
+    } catch (error) {
+      console.error('Erro ao atualizar post:', error);
+      return NextResponse.json(
+        { error: 'Erro ao atualizar post' },
+        { status: 500 }
+      );
+    }
+  }
+  
+  async removePost(postId: number) {
+    try {
+      await this.postsService.removePost(postId);
+      return NextResponse.json({ message: 'Post removido com sucesso' });
+    } catch (error) {
+      console.error('Erro ao remover post:', error); 
+      return NextResponse.json(
+        { error: 'Erro ao remover post' },
+        { status: 500 }
+      );
+    }
+  }
 } 

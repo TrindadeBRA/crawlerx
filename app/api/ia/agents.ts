@@ -12,6 +12,26 @@ export const agents = {
             4. **Primeira pessoa:** Escrever em primeira pessoa, de uma forma acessível e leve. O tom não precisa ser muito formal, mas deve ser profissional e claro.
             
             5. **Remover qualquer menção à origem do artigo original:** Não deve aparecer nenhuma referência a fontes, autor, ou informações relacionadas ao artigo original. Apenas o novo conteúdo será mantido.
+        `,
+        createSeoDescription: `
+            O SEO description deve ser conciso e informativo, destacando os principais pontos do artigo. Utilize as seguintes diretrizes:
+
+            1. **Tamanho Ideal:** O texto deve ter entre 150 a 160 caracteres para garantir que não seja cortado nos resultados de busca.
+            
+            2. **Palavras-chave:** Inclua palavras-chave relevantes que refletem o conteúdo do artigo, como [PALAVRA-CHAVE 1], [PALAVRA-CHAVE 2] e [PALAVRA-CHAVE 3].
+            
+            3. **Chamada à Ação:** Incentive o leitor a clicar, utilizando frases como "Descubra mais sobre..." ou "Saiba como...".
+            
+            4. **Clareza e Relevância:** O texto deve resumir o conteúdo do artigo de forma clara e atrativa, garantindo que o leitor entenda o que esperar.
+
+            5. **Me retorne apenas o texto do SEO description, sem nenhum outro texto.**
+
+            Exemplo de SEO description: "Explore [TEMA DO ARTIGO] e descubra [PONTO PRINCIPAL]. Aprenda sobre [ASSUNTO RELACIONADO] e melhore seu conhecimento em [PALAVRA-CHAVE]."
+        `,
+        extractTitle: `
+            Você deve extrair o título do artigo completo recebido.
+
+            1. **Me retorne apenas o texto do título, sem nenhum outro texto.**
         `
     },
     webdeveloper: {

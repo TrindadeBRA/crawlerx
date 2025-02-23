@@ -8,6 +8,7 @@ export function usePosts() {
   const { showNotification } = useNotification()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(30)
+  const [processingQueue, setProcessingQueue] = useState<number[]>([])
 
   // Query para listar os posts
   const { data, isLoading } = useQuery({
@@ -22,8 +23,9 @@ export function usePosts() {
   })
 
   // Mutation para processar um post
-  const { mutate: processPost } = useMutation({
+  const { mutate: processPost, isPending: isProcessingText } = useMutation({
     mutationFn: async (post: Post) => {
+      setProcessingQueue(prev => [...prev, post.id])
       if (!post.title || !post.content) {
         throw new Error('Título e conteúdo são obrigatórios');
       }
@@ -31,6 +33,7 @@ export function usePosts() {
       const payload = {
         title: post.title,
         content: post.content,
+        id: post.id,
       }
 
       const response = await fetch("/api/ia/process-text", {
@@ -40,25 +43,11 @@ export function usePosts() {
         },
         body: JSON.stringify(payload),
       })
-      
 
-      // Atualizar status do post
-      // const statusResponse = await fetch("/api/posts/status", {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ id: post.id, status: 'PROCESSED' }),
-      // })
-
-      // if (!statusResponse.ok) {
-      //   throw new Error('Falha ao atualizar o status do post')
-      // }
-
-        return response.json()
-      },
-    onSuccess: () => {
-      // Invalidar o cache e mostrar notificação de sucesso
+      return response.json()
+    },
+    onSuccess: (_, post) => {
+      setProcessingQueue(prev => prev.filter(id => id !== post.id))
       queryClient.invalidateQueries({ queryKey: ['posts'] })
       showNotification(
         'Sucesso',
@@ -66,10 +55,47 @@ export function usePosts() {
         'success'
       )
     },
-    onError: (error: Error) => {
+    onError: (_, post) => {
+      setProcessingQueue(prev => prev.filter(id => id !== post.id))
       showNotification(
         'Erro',
-        error.message || 'Erro ao processar o post',
+        'Erro ao processar o post',
+        'error'
+      )
+    }
+  })
+
+  // Mutation para processar uma imagem
+  const { mutate: processImage, isPending: isProcessingImage } = useMutation({
+    mutationFn: async (post: Post) => {
+      setProcessingQueue(prev => [...prev, post.id])
+      const response = await fetch("/api/ia/process-image", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          articleProcessed: post.processed_full_post,
+          id: post.id,
+        }),
+      })
+
+      return response.json()
+    },
+    onSuccess: (_, post) => {
+      setProcessingQueue(prev => prev.filter(id => id !== post.id))
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+      showNotification(
+        'Sucesso',
+        'Imagem processada com sucesso!',
+        'success'
+      )
+    },
+    onError: (_, post) => {
+      setProcessingQueue(prev => prev.filter(id => id !== post.id))
+      showNotification(
+        'Erro',
+        'Erro ao processar a imagem',
         'error'
       )
     }
@@ -109,10 +135,49 @@ export function usePosts() {
     }
   })
 
+  // Mutation para remover um post
+  const { mutate: removePost, isPending: isRemoving } = useMutation({
+    mutationFn: async (postId: number) => {
+      const response = await fetch('/api/posts/remove', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: postId }),
+      })
+
+      if (!response.ok) { 
+        throw new Error('Falha ao remover o post')
+      }
+
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+      showNotification(
+        'Sucesso',
+        'Post removido com sucesso!',
+        'success'
+      )
+    },
+    onError: (error: Error) => {
+      showNotification(
+        'Erro',
+        error.message || 'Erro ao remover o post',
+        'error'
+      )
+    }
+  })
+
   return {
     posts: data?.data ?? [],
     isLoading,
     processPost,
+    isProcessingText,
+    processImage,
+    isProcessingImage,
+    removePost,
+    isRemoving,
     savePost,
     isSaving,
     pagination: {
@@ -122,6 +187,7 @@ export function usePosts() {
       setPageSize,
       total: data?.total ?? 0,
       pageCount: data?.pageCount ?? 0
-    }
+    },
+    processingQueue,
   }
 } 

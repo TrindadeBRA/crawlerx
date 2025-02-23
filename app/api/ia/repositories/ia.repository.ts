@@ -4,7 +4,7 @@ import async from 'async';
 
 // Definindo interfaces para as tasks
 interface BaseTask {
-  type: 'processArticle' | 'generateHtml' | 'generateImagePrompt' | 'generateImage';
+  type: 'processArticle' | 'generateHtml' | 'generateImagePrompt' | 'generateImage' | 'extractTitle' | 'createSeoDescription';
 }
 
 interface ProcessArticleTask extends BaseTask {
@@ -18,6 +18,16 @@ interface GenerateHtmlTask extends BaseTask {
   processedArticle: string;
 }
 
+interface ExtractTitleTask extends BaseTask {
+  type: 'extractTitle';
+  processedArticle: string;
+}
+
+interface CreateSeoDescriptionTask extends BaseTask {
+  type: 'createSeoDescription';
+  processedArticle: string;
+}
+
 interface GenerateImagePromptTask extends BaseTask {
   type: 'generateImagePrompt';
   processedArticle: string;
@@ -28,7 +38,7 @@ interface GenerateImageTask extends BaseTask {
   prompt: string;
 }
 
-type Task = ProcessArticleTask | GenerateHtmlTask | GenerateImagePromptTask | GenerateImageTask;
+type Task = ProcessArticleTask | GenerateHtmlTask | ExtractTitleTask | CreateSeoDescriptionTask | GenerateImagePromptTask | GenerateImageTask;
 
 export class IARepository {
   private client: OpenAI;
@@ -66,6 +76,12 @@ export class IARepository {
           case 'generateImage':
             result = await this.executeGenerateImage(task.prompt);
             break;
+          case 'extractTitle':
+            result = await this.executeExtractTitle(task.processedArticle);
+            break;
+          case 'createSeoDescription':
+            result = await this.executeCreateSeoDescription(task.processedArticle);
+            break;
           default:
             throw new Error(`Tipo de tarefa não suportado.`);
         }
@@ -89,6 +105,42 @@ export class IARepository {
 
             Título original: ${title}
             Conteúdo original: ${content}
+          `
+        },
+      ],
+      model: 'gpt-4o-mini',
+    });
+
+    return response.choices[0].message.content || '';
+  }
+
+  private async executeExtractTitle(processedArticle: string): Promise<string> {
+    const response = await this.client.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: `
+            Instruções: ${agents.copywriter.extractTitle}
+
+            Artigo processado: ${processedArticle}
+          `
+        },
+      ],
+      model: 'gpt-4o-mini',
+    });
+
+    return response.choices[0].message.content || '';
+  }
+  
+  private async executeCreateSeoDescription(processedArticle: string): Promise<string> {
+    const response = await this.client.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: `
+            Instruções: ${agents.copywriter.createSeoDescription}
+
+            Artigo processado: ${processedArticle}
           `
         },
       ],
@@ -158,6 +210,24 @@ export class IARepository {
   async generateHtmlContent(processedArticle: string): Promise<string> {
     return new Promise((resolve, reject) => {
       this.queue.push({ type: 'generateHtml', processedArticle }, (error, result) => {
+        if (error) reject(error);
+        else resolve(result as string);
+      });
+    });
+  }
+
+  async extractTitle(processedArticle: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ type: 'extractTitle', processedArticle }, (error, result) => {
+        if (error) reject(error);
+        else resolve(result as string);
+      });
+    });
+  }
+
+  async createSeoDescription(processedArticle: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ type: 'createSeoDescription', processedArticle }, (error, result) => {
         if (error) reject(error);
         else resolve(result as string);
       });

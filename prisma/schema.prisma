@@ -16,24 +16,29 @@ datasource db {
 enum PostStatus {
   FAILED
   IMPORTED
-  PROCESSED
+  PROCESSED_TEXT
+  PROCESSED_IMAGE
   POSTED
 }
 
 model Post {
-  id        Int        @id @default(autoincrement())
-  status    PostStatus
-  isActive  Boolean    @default(true)
-  url       String     @db.Text
-  domain    String     @db.Text
-  title     String     @db.Text
-  content   String     @db.LongText
-  processed_title     String?     @db.Text
-  processed_content   String?     @db.LongText
-  processed_seo_content   String?     @db.LongText
-  processed_image_id   Int?
-  processed_image_url   String?     @db.Text
-  processed_post_url   String?     @db.Text
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id                     Int        @id @default(autoincrement())
+  status                 PostStatus
+  isActive               Boolean    @default(true)
+  url                    String     @db.Text
+  domain                 String     @db.Text
+  title                  String     @db.Text
+  content                String     @db.LongText
+  processed_title        String?    @db.Text // Título processado do post
+  processed_content      String?    @db.LongText // Conteúdo processado do post (html)
+  processed_full_post    String?    @db.LongText // Conteúdo completo do post, incluindo o título e o conteúdo
+  processed_seo_content  String?    @db.LongText // SEO description do post
+  processed_image_prompt String?    @db.LongText // Prompt da imagem processada do post
+  processed_image_url    String?    @db.Text // URL da imagem processada do post
+  wp_image_id            Int? // ID da imagem no WordPress
+  wp_image_url           String?    @db.Text // URL da imagem no WordPress
+  wp_post_id             Int? // ID do post no WordPress
+  wp_slug                String?    @db.Text // Slug do post no WordPress
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
 }

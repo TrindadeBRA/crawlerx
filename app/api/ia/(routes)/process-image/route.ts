@@ -5,16 +5,16 @@ const iaController = new IAController();
 
 export async function POST(request: Request) {
   try {
-    const { title, content, id } = await request.json();
+    const { articleProcessed, id } = await request.json();
     
-    if (!title || !content || !id) {
+    if (!articleProcessed) {
       return NextResponse.json(
         { error: 'Campos obrigatórios ausentes' },
         { status: 400 }
       );
     }
 
-    const result = await iaController.processText({ title, content, id });
+    const result = await iaController.processImage({ articleProcessed, id });
     return NextResponse.json({ result });
     
   } catch (error) {

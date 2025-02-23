@@ -90,4 +90,12 @@ export class PostsService {
     return Array.from(originMap.values())
       .sort((a, b) => b.totalPosts - a.totalPosts);
   }
+
+  async updatePost(postId: number, postData: Partial<Post>): Promise<Post> {
+    return this.postsRepository.update(postId, postData);
+  }
+
+  async removePost(postId: number): Promise<void> {
+    return this.postsRepository.remove(postId);
+  }
 } 

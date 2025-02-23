@@ -2,7 +2,7 @@
 
 import { Post } from '@prisma/client';
 import { usePosts } from '@/src/hooks/usePosts';
-import { ArrowUpCircleIcon, EyeIcon } from '@heroicons/react/24/solid';
+import { EyeIcon, PhotoIcon, TrashIcon, DocumentTextIcon, ArrowUpCircleIcon } from '@heroicons/react/24/solid';
 import { twMerge } from 'tailwind-merge'
 import { BadgeStatus } from '../BadgeStatus/indext';
 import {
@@ -15,21 +15,25 @@ import {
 
 
 export default function TablePosts() {
-  const { 
-    posts, 
-    isLoading, 
+  const {
+    posts,
+    isLoading,
     processPost,
-    pagination: { page, setPage, pageCount }
+    processImage,
+    removePost,
+    isRemoving,
+    pagination: { page, setPage, pageCount },
+    processingQueue,
   } = usePosts();
-  
+
   const columnHelper = createColumnHelper<Post>();
 
   const columns = [
     columnHelper.accessor('title', {
       header: 'Título',
       cell: (info) => (
-        info.getValue().length > 40 
-          ? info.getValue().slice(0, 40).concat('...') 
+        info.getValue().length > 40
+          ? info.getValue().slice(0, 40).concat('...')
           : info.getValue()
       ),
     }),
@@ -53,8 +57,23 @@ export default function TablePosts() {
       }),
     }),
     columnHelper.display({
+      id: 'remove',
+      header: () => <span className="sr-only">Remover</span>,
+      cell: (info) => (
+        <button
+          onClick={() => removePost(info.row.original.id)}
+          className={twMerge(
+            'text-primary hover:text-primary/80',
+          )}
+          disabled={isRemoving}
+        >
+          <TrashIcon className="size-5" />
+        </button>
+      ),
+    }),
+    columnHelper.display({
       id: 'view',
-      header: () => <span className="sr-only">Ver</span>,
+      header: () => <span className="sr-only">Ver Original</span>,
       cell: (info) => (
         <button
           onClick={() => window.open(info.row.original.url, '_blank')}
@@ -65,15 +84,58 @@ export default function TablePosts() {
       ),
     }),
     columnHelper.display({
-      id: 'process',
-      header: () => <span className="sr-only">Processar</span>,
+      id: 'processText',
+      header: () => <span className="sr-only">Processar Texto</span>,
       cell: (info) => (
         <button
           onClick={() => processPost(info.row.original)}
+          disabled={
+            info.row.original.status === 'PROCESSED_TEXT' ||
+            info.row.original.status === 'PROCESSED_IMAGE' ||
+            info.row.original.status === 'POSTED' ||
+            processingQueue.includes(info.row.original.id)
+          }
+          className="text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <DocumentTextIcon className="size-5" />
+        </button>
+      ),
+    }),
+    columnHelper.display({
+      id: 'processImage',
+      header: () => <span className="sr-only">Processar Imagem</span>,
+      cell: (info) => (
+        <button
+          onClick={() => processImage(info.row.original)}
+          className="text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={(
+            info.row.original.status === 'IMPORTED' ||
+            info.row.original.status === 'PROCESSED_IMAGE' ||
+            info.row.original.status === 'POSTED' ||
+            processingQueue.includes(info.row.original.id)
+          )}
+        >
+          <PhotoIcon className="size-5" />
+        </button>
+      ),
+    }),
+    columnHelper.display({
+      id: 'post',
+      header: () => <span className="sr-only">Publicar</span>,
+      cell: (info) => (
+        <button
+          onClick={() => console.log({
+            title: info.row.original.processed_title?.slice(0, 50),
+            content: info.row.original.processed_content?.slice(0, 50),
+            imageUrl: info.row.original.processed_image_url,
+          })}
           className={twMerge(
             'text-primary hover:text-primary/80',
-            info.row.original.status === 'PROCESSED' && 'opacity-50'
+            'disabled:opacity-50 disabled:cursor-not-allowed disabled:text-gray-500',
           )}
+          disabled={
+            info.row.original.status !== 'PROCESSED_IMAGE'
+          }
         >
           <ArrowUpCircleIcon className="size-5" />
         </button>
@@ -124,10 +186,16 @@ export default function TablePosts() {
                       Data de Criação
                     </th>
                     <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
+                      <span className="sr-only">Remover</span>
+                    </th>
+                    <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
                       <span className="sr-only">Ver</span>
                     </th>
                     <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                      <span className="sr-only">Processar</span>
+                      <span className="sr-only">Processar Texto</span>
+                    </th>
+                    <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
+                      <span className="sr-only">Processar Imagem</span>
                     </th>
                   </tr>
                 </thead>
@@ -147,6 +215,12 @@ export default function TablePosts() {
                         <div className="h-5 bg-gray-200 rounded animate-pulse w-32"></div>
                       </td>
                       <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-5 ml-auto"></div>
+                      </td>
+                      <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap">
+                        <div className="h-5 bg-gray-200 rounded animate-pulse w-5 ml-auto"></div>
+                      </td>
+                      <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap">
                         <div className="h-5 bg-gray-200 rounded animate-pulse w-5 ml-auto"></div>
                       </td>
                       <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap">
@@ -173,9 +247,9 @@ export default function TablePosts() {
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map(header => (
-                      <th 
+                      <th
                         key={header.id}
-                        scope="col" 
+                        scope="col"
                         className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-0"
                       >
                         {flexRender(
@@ -191,7 +265,7 @@ export default function TablePosts() {
                 {table.getRowModel().rows.map(row => (
                   <tr key={row.id} className="hover:bg-[#ffdddd]">
                     {row.getVisibleCells().map(cell => (
-                      <td 
+                      <td
                         key={cell.id}
                         className="px-3 py-4 text-sm whitespace-nowrap text-gray-500"
                       >

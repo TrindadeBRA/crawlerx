@@ -54,4 +54,22 @@ export class PostsRepository {
   async count() {
     return this.prisma.post.count();
   }
+
+  async update(postId: number, data: Partial<Post>): Promise<Post> {
+    try {
+      return await this.prisma.post.update({
+        where: { id: postId },
+        data
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar post:', error);
+      throw error;
+    }
+  }
+
+  async remove(postId: number): Promise<void> {
+    await this.prisma.post.delete({
+      where: { id: postId }
+    });
+  }
 } 
