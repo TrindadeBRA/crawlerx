@@ -32,9 +32,11 @@ export default function TablePosts() {
     columnHelper.accessor('title', {
       header: 'Título',
       cell: (info) => (
-        info.getValue().length > 40
-          ? info.getValue().slice(0, 40).concat('...')
-          : info.getValue()
+        <span className="text-sm text-gray-500" title={info.getValue()}>
+          {info.getValue().length > 40
+            ? info.getValue().slice(0, 40).concat('...')
+            : info.getValue()}
+        </span>
       ),
     }),
     columnHelper.accessor('domain', {
