@@ -4,6 +4,7 @@ import { DeveloperTechCrawler } from "../services/developer-tech.service";
 import { OlharDigitalCrawler } from "../services/olhardigital.service";
 import { TecmundoCrawler } from "../services/tecmundo.service";
 import { OmelhoreslivrosCrawler } from "../services/osmelhoreslivros.service";
+import { ResenhasALaCarteCrawler } from "../services/resenhasalacarte.service";
 export class ScrapingController {
   private postsService: PostsService;
 
@@ -50,6 +51,13 @@ export class ScrapingController {
         case "osmelhoreslivros.com.br":
           const omelhoreslivrosCrawler = new OmelhoreslivrosCrawler();
           data = await omelhoreslivrosCrawler.getSearchResults({
+            searchParam: body.searchTerm,
+            quantity: body.limit
+          });
+          return NextResponse.json(data);
+        case "resenhasalacarte.com.br":
+          const resenhasalacarteCrawler = new ResenhasALaCarteCrawler();
+          data = await resenhasalacarteCrawler.getSearchResults({
             searchParam: body.searchTerm,
             quantity: body.limit
           });
@@ -107,6 +115,10 @@ export class ScrapingController {
         case "osmelhoreslivros.com.br":
           const omelhoreslivrosCrawler = new OmelhoreslivrosCrawler();
           articleData = await omelhoreslivrosCrawler.scrapeArticle(body.url);
+          break;
+        case "resenhasalacarte.com.br":
+          const resenhasalacarteCrawler = new ResenhasALaCarteCrawler();
+          articleData = await resenhasalacarteCrawler.scrapeArticle(body.url);
           break;
         default:
           return NextResponse.json(

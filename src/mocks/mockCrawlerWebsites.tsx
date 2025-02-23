@@ -24,5 +24,10 @@ export const mockCrawlerWebsites = [
         id: 4,
         name: 'osmelhoreslivros.com.br',
         value: 'osmelhoreslivros.com.br'
+    },
+    {
+        id: 5,
+        name: 'resenhasalacarte.com.br',
+        value: 'resenhasalacarte.com.br'
     }
 ]

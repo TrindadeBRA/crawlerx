@@ -23,7 +23,7 @@ export const importPostsSchema = z.object({
     .transform(val => val ?? ''),
   quantity: z.number()
     .min(1, 'A quantidade deve ser maior que 0')
-    .max(10, 'A quantidade máxima é 10')
+    .max(300, 'A quantidade máxima é 300')
 })
 
 export type ImportPostsInput = z.infer<typeof importPostsSchema> 

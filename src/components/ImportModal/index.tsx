@@ -107,8 +107,6 @@ export default function ImportModal() {
                                             error={errors.quantity?.message}
                                             {...register('quantity', { valueAsNumber: true })}
                                             type="number"
-                                            min="1"
-                                            max="10"
                                             placeholder="Digite a quantidade de posts"
                                         />
 
