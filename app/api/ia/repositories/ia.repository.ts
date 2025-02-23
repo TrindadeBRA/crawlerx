@@ -80,6 +80,9 @@ export class IARepository {
       model: 'gpt-4o-mini',
     });
 
+    const tokensUsed = response.usage?.total_tokens || 0;
+    console.log(`Tokens usados para processar o artigo: ${tokensUsed}`);
+
     return response.choices[0].message.content || '';
   }
 
@@ -97,6 +100,9 @@ export class IARepository {
       ],
       model: 'gpt-4o-mini',
     });
+
+    const tokensUsed = response.usage?.total_tokens || 0;
+    console.log(`Tokens usados para extrair o título: ${tokensUsed}`);
 
     return response.choices[0].message.content || '';
   }
@@ -116,6 +122,9 @@ export class IARepository {
       model: 'gpt-4o-mini',
     });
 
+    const tokensUsed = response.usage?.total_tokens || 0;
+    console.log(`Tokens usados para criar a descrição SEO: ${tokensUsed}`);
+
     return response.choices[0].message.content || '';
   }
 
@@ -134,6 +143,9 @@ export class IARepository {
       model: 'gpt-4o-mini',
     });
 
+    const tokensUsed = response.usage?.total_tokens || 0;
+    console.log(`Tokens usados para criar o HTML: ${tokensUsed}`);
+
     return response.choices[0].message.content || '';
   }
 
@@ -150,6 +162,9 @@ export class IARepository {
       ],
       model: 'gpt-4o-mini',
     });
+
+    const tokensUsed = response.usage?.total_tokens || 0;
+    console.log(`Tokens usados para criar o prompt de imagem: ${tokensUsed}`);
 
     return response.choices[0].message.content || '';
   }

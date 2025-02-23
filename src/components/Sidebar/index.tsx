@@ -3,18 +3,17 @@
 import { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
 import {
-  // Bars3Icon,
-  HomeIcon,
-  UsersIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowsRightLeftIcon, ListBulletIcon } from '@heroicons/react/24/solid'
 
 const navigation = [
-  { name: 'Importações', href: '/', icon: HomeIcon },
-  { name: 'Origens', href: '/origens', icon: UsersIcon },
+  { name: 'Importações', href: '/', icon: ListBulletIcon },
+  // { name: 'Import. de Vídeos (Em breve)', href: '/', icon: VideoCameraIcon },
+  { name: 'Origens', href: '/origens', icon: ArrowsRightLeftIcon },
 ]
 
 // const teams = [
