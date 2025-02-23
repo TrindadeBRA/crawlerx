@@ -24,40 +24,39 @@ export function usePosts() {
   // Mutation para processar um post
   const { mutate: processPost } = useMutation({
     mutationFn: async (post: Post) => {
-      // Enviar para webhook
-      const payload = {
-        og_post_url: post.url,
-        og_post_title: post.title,
-        og_post_content: post.content || ''
+      if (!post.title || !post.content) {
+        throw new Error('Título e conteúdo são obrigatórios');
       }
 
-      const webhookResponse = await fetch(process.env.NEXT_PUBLIC_WEBHOOK_URL || '', {
+      const payload = {
+        title: post.title,
+        content: post.content,
+      }
+
+      const response = await fetch("/api/ia/process-text", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       })
-
-      if (!webhookResponse.ok) {
-        throw new Error('Falha ao processar o post no webhook')
-      }
+      
 
       // Atualizar status do post
-      const statusResponse = await fetch("/api/posts/status", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id: post.id, status: 'PROCESSED' }),
-      })
+      // const statusResponse = await fetch("/api/posts/status", {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ id: post.id, status: 'PROCESSED' }),
+      // })
 
-      if (!statusResponse.ok) {
-        throw new Error('Falha ao atualizar o status do post')
-      }
+      // if (!statusResponse.ok) {
+      //   throw new Error('Falha ao atualizar o status do post')
+      // }
 
-      return statusResponse.json()
-    },
+        return response.json()
+      },
     onSuccess: () => {
       // Invalidar o cache e mostrar notificação de sucesso
       queryClient.invalidateQueries({ queryKey: ['posts'] })

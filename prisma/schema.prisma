@@ -14,8 +14,10 @@ datasource db {
 }
 
 enum PostStatus {
+  FAILED
   IMPORTED
   PROCESSED
+  POSTED
 }
 
 model Post {
@@ -26,6 +28,12 @@ model Post {
   domain    String     @db.Text
   title     String     @db.Text
   content   String     @db.LongText
+  processed_title     String?     @db.Text
+  processed_content   String?     @db.LongText
+  processed_seo_content   String?     @db.LongText
+  processed_image_id   Int?
+  processed_image_url   String?     @db.Text
+  processed_post_url   String?     @db.Text
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }

@@ -147,8 +147,13 @@ export class ScrapingController {
       const savedPost = await this.postsService.savePost(postData);
       return NextResponse.json(savedPost);
 
-    } catch (error) {
-      console.error("Erro ao importar artigo:", error);
+    } catch (error: any) {
+
+      console.error("Erro ao importar artigo:", {
+        message: error.message,
+        stack: error.stack
+      });
+
       return NextResponse.json(
         { message: "Erro ao importar artigo" },
         { status: 500 }
