@@ -14,26 +14,40 @@ export class IAController {
     title: string;
     content: string;
   }) {
+    try {
+      console.log("Iniciando processamento:", 
+        `
+          Título original: ${title}
+          Conteúdo original: ${content}
+        `
+      );
 
-    console.log("Conteudo original", 
-      `
-        Título original: ${title}
-        Conteúdo original: ${content}
-      `
-    );
-    console.log("\n\n\n");
+      const articleProcessed = await this.iaRepository.processArticle(title, content);
+      console.log("Artigo processado com sucesso:", articleProcessed);
 
-    const articleProcessed = await this.iaRepository.processArticle(title, content);
-    console.log("Resposta do IA - Processado", articleProcessed);
+      const htmlContent = await this.iaRepository.generateHtmlContent(articleProcessed);
+      console.log("HTML gerado com sucesso:", htmlContent);
 
-    console.log("\n\n\n");
+      const imagePrompt = await this.iaRepository.generateImagePrompt(articleProcessed);
+      console.log("Prompt de imagem gerado com sucesso:", imagePrompt);
 
-    const htmlContent = await this.iaRepository.generateHtmlContent(articleProcessed);
-    console.log("Resposta do IA - HTML", htmlContent);
+      const imageUrl = await this.iaRepository.generateImage(imagePrompt);
+      console.log("Imagem gerada com sucesso:", imageUrl);
 
-    return {
-      articleProcessed,
-      htmlContent,
-    };
+      return {
+        success: true,
+        data: {
+          articleProcessed,
+          htmlContent,
+          imagePrompt,
+        }
+      };
+    } catch (error) {
+      console.error("Erro no processamento:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erro desconhecido no processamento',
+      };
+    }
   }
 } 
