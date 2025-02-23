@@ -2,9 +2,9 @@
 
 import { Post } from '@prisma/client';
 import { usePosts } from '@/src/hooks/usePosts';
-import { EyeIcon, PhotoIcon, TrashIcon, DocumentTextIcon, ArrowUpCircleIcon } from '@heroicons/react/24/solid';
-import { twMerge } from 'tailwind-merge'
 import { BadgeStatus } from '../BadgeStatus/indext';
+import { TableActions } from './components/TableActions';
+import { TablePagination } from './components/TablePagination';
 import {
   createColumnHelper,
   flexRender,
@@ -12,7 +12,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-
+import { TableLoading } from './components/TableLoading';
 
 export default function TablePosts() {
   const {
@@ -57,88 +57,19 @@ export default function TablePosts() {
       }),
     }),
     columnHelper.display({
-      id: 'remove',
-      header: () => <span className="sr-only">Remover</span>,
+      id: 'actions',
+      header: () => <span className="sr-only">Ações</span>,
       cell: (info) => (
-        <button
-          onClick={() => removePost(info.row.original.id)}
-          className={twMerge(
-            'text-primary hover:text-primary/80',
-          )}
-          disabled={isRemoving}
-        >
-          <TrashIcon className="size-5" />
-        </button>
-      ),
-    }),
-    columnHelper.display({
-      id: 'view',
-      header: () => <span className="sr-only">Ver Original</span>,
-      cell: (info) => (
-        <button
-          onClick={() => window.open(info.row.original.url, '_blank')}
-          className="text-primary hover:text-primary/80"
-        >
-          <EyeIcon className="size-5" />
-        </button>
-      ),
-    }),
-    columnHelper.display({
-      id: 'processText',
-      header: () => <span className="sr-only">Processar Texto</span>,
-      cell: (info) => (
-        <button
-          onClick={() => processPost(info.row.original)}
-          disabled={
-            info.row.original.status === 'PROCESSED_TEXT' ||
-            info.row.original.status === 'PROCESSED_IMAGE' ||
-            info.row.original.status === 'POSTED' ||
-            processingQueue.includes(info.row.original.id)
-          }
-          className="text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <DocumentTextIcon className="size-5" />
-        </button>
-      ),
-    }),
-    columnHelper.display({
-      id: 'processImage',
-      header: () => <span className="sr-only">Processar Imagem</span>,
-      cell: (info) => (
-        <button
-          onClick={() => processImage(info.row.original)}
-          className="text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={(
-            info.row.original.status === 'IMPORTED' ||
-            info.row.original.status === 'PROCESSED_IMAGE' ||
-            info.row.original.status === 'POSTED' ||
-            processingQueue.includes(info.row.original.id)
-          )}
-        >
-          <PhotoIcon className="size-5" />
-        </button>
-      ),
-    }),
-    columnHelper.display({
-      id: 'post',
-      header: () => <span className="sr-only">Publicar</span>,
-      cell: (info) => (
-        <button
-          onClick={() => console.log({
-            title: info.row.original.processed_title?.slice(0, 50),
-            content: info.row.original.processed_content?.slice(0, 50),
-            imageUrl: info.row.original.processed_image_url,
-          })}
-          className={twMerge(
-            'text-primary hover:text-primary/80',
-            'disabled:opacity-50 disabled:cursor-not-allowed disabled:text-gray-500',
-          )}
-          disabled={
-            info.row.original.status !== 'PROCESSED_IMAGE'
-          }
-        >
-          <ArrowUpCircleIcon className="size-5" />
-        </button>
+        <div className="flex gap-2">
+          <TableActions
+            post={info.row.original}
+            onRemove={removePost}
+            onProcessPost={processPost}
+            onProcessImage={processImage}
+            isRemoving={isRemoving}
+            processingQueue={processingQueue}
+          />
+        </div>
       ),
     }),
   ];
@@ -165,76 +96,7 @@ export default function TablePosts() {
   });
 
   if (isLoading) {
-    return (
-      <div className="px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mt-8 flow-root">
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead>
-                  <tr>
-                    <th scope="col" className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                      Título
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Domínio
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Status
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Data de Criação
-                    </th>
-                    <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                      <span className="sr-only">Remover</span>
-                    </th>
-                    <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                      <span className="sr-only">Ver</span>
-                    </th>
-                    <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                      <span className="sr-only">Processar Texto</span>
-                    </th>
-                    <th scope="col" className="relative py-3.5 pr-4 pl-3 sm:pr-0">
-                      <span className="sr-only">Processar Imagem</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {[...Array(5)].map((_, index) => (
-                    <tr key={index} className="hover:bg-[#ffdddd]">
-                      <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap">
-                        <div className="h-5 bg-gray-200 rounded animate-pulse w-40"></div>
-                      </td>
-                      <td className="px-3 py-4 text-sm whitespace-nowrap">
-                        <div className="h-5 bg-gray-200 rounded animate-pulse w-24"></div>
-                      </td>
-                      <td className="px-3 py-4 text-sm whitespace-nowrap">
-                        <div className="h-6 bg-gray-200 rounded-full animate-pulse w-20"></div>
-                      </td>
-                      <td className="px-3 py-4 text-sm whitespace-nowrap">
-                        <div className="h-5 bg-gray-200 rounded animate-pulse w-32"></div>
-                      </td>
-                      <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
-                        <div className="h-5 bg-gray-200 rounded animate-pulse w-5 ml-auto"></div>
-                      </td>
-                      <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap">
-                        <div className="h-5 bg-gray-200 rounded animate-pulse w-5 ml-auto"></div>
-                      </td>
-                      <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap">
-                        <div className="h-5 bg-gray-200 rounded animate-pulse w-5 ml-auto"></div>
-                      </td>
-                      <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap">
-                        <div className="h-5 bg-gray-200 rounded animate-pulse w-5 ml-auto"></div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <TableLoading />;
   }
 
   return (
@@ -280,51 +142,14 @@ export default function TablePosts() {
               </tbody>
             </table>
 
-            {/* Controles de Paginação */}
-            <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-              <div className="flex flex-1 justify-between sm:hidden">
-                <button
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-                >
-                  Anterior
-                </button>
-                <button
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-                >
-                  Próximo
-                </button>
-              </div>
-              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Página <span className="font-medium">{page}</span> de{' '}
-                    <span className="font-medium">{pageCount}</span>
-                  </p>
-                </div>
-                <div>
-                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                    <button
-                      onClick={() => table.previousPage()}
-                      disabled={!table.getCanPreviousPage()}
-                      className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-                    >
-                      Anterior
-                    </button>
-                    <button
-                      onClick={() => table.nextPage()}
-                      disabled={!table.getCanNextPage()}
-                      className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-                    >
-                      Próximo
-                    </button>
-                  </nav>
-                </div>
-              </div>
-            </div>
+            <TablePagination
+              page={page}
+              pageCount={pageCount}
+              canPreviousPage={table.getCanPreviousPage()}
+              canNextPage={table.getCanNextPage()}
+              onPreviousPage={() => table.previousPage()}
+              onNextPage={() => table.nextPage()}
+            />
           </div>
         </div>
       </div>
