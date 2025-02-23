@@ -30,38 +30,34 @@ export function usePosts() {
         throw new Error('Título e conteúdo são obrigatórios');
       }
 
-      const payload = {
-        title: post.title,
-        content: post.content,
-        id: post.id,
-      }
-
       const response = await fetch("/api/ia/process-text", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
-      })
+        body: JSON.stringify({
+          title: post.title,
+          content: post.content,
+          id: post.id,
+        }),
+      });
 
-      return response.json()
+      const data = await response.json();
+      
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Erro ao processar o post');
+      }
+
+      return data;
     },
     onSuccess: (_, post) => {
       setProcessingQueue(prev => prev.filter(id => id !== post.id))
       queryClient.invalidateQueries({ queryKey: ['posts'] })
-      showNotification(
-        'Sucesso',
-        'Post processado com sucesso!',
-        'success'
-      )
+      showNotification('Sucesso', 'Post processado com sucesso!', 'success')
     },
-    onError: (_, post) => {
+    onError: (error: Error, post) => {
       setProcessingQueue(prev => prev.filter(id => id !== post.id))
-      showNotification(
-        'Erro',
-        'Erro ao processar o post',
-        'error'
-      )
+      showNotification('Erro', error.message, 'error')
     }
   })
 
@@ -78,26 +74,24 @@ export function usePosts() {
           articleProcessed: post.processed_full_post,
           id: post.id,
         }),
-      })
+      });
 
-      return response.json()
+      const data = await response.json();
+      
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Erro ao processar a imagem');
+      }
+
+      return data;
     },
     onSuccess: (_, post) => {
       setProcessingQueue(prev => prev.filter(id => id !== post.id))
       queryClient.invalidateQueries({ queryKey: ['posts'] })
-      showNotification(
-        'Sucesso',
-        'Imagem processada com sucesso!',
-        'success'
-      )
+      showNotification('Sucesso', 'Imagem processada com sucesso!', 'success')
     },
-    onError: (_, post) => {
+    onError: (error: Error, post) => {
       setProcessingQueue(prev => prev.filter(id => id !== post.id))
-      showNotification(
-        'Erro',
-        'Erro ao processar a imagem',
-        'error'
-      )
+      showNotification('Erro', error.message, 'error')
     }
   })
 

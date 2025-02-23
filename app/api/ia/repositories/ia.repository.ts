@@ -18,7 +18,7 @@ export class IARepository {
     });
   }
 
-  private async executeWithRetries(task: Task, maxRetries = 3): Promise<string> {
+  private async executeWithRetries(task: Task, maxRetries = 1): Promise<string> {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         let result: string;
@@ -51,10 +51,14 @@ export class IARepository {
             throw new Error(`Tipo de tarefa não suportado.`);
         }
         return result;
-      } catch (error) {
+      } catch (error: any) {
         console.error(`Attempt ${attempt} failed:`, error);
-        if (attempt === maxRetries) throw error;
+        if (attempt === maxRetries) {
+          console.error('Todas as tentativas falharam. Erro final:', error);
+          throw error;
+        }
         await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        
       }
     }
     throw new Error('Failed to execute task after all retries');
