@@ -1,32 +1,25 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { auth } from '@/app/auth'
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
-  // Ignora requisições para /dashboard/list-all para evitar loop
-  if (request.nextUrl.pathname === '/dashboard/list-imports') {
-    return NextResponse.next()
+  const session = await auth()
+  
+  // Se estiver autenticado e tentar acessar /login, redireciona para /dashboard/list-imports
+  if (session && request.nextUrl.pathname === '/login') {
+    return NextResponse.redirect(new URL('/dashboard/list-imports', request.url))
   }
 
-  try {
-    // Tenta fazer uma requisição para a API ou rota específica
-    const res = await fetch(request.url, {
-      headers: {
-        'x-middleware-bypass': 'true' // Marca para evitar loop
-      }
-    })
-    
-    // Se a página existe (status 200), deixa passar
-    if (res.status === 200) {
-      return NextResponse.next()
-    }
-    
-    // Se chegou aqui, a página não existe, então redireciona
-    return NextResponse.redirect(new URL('/dashboard/list-imports', request.url))
-  } catch {
-    // Se der algum erro, redireciona também
-    return NextResponse.redirect(new URL('/dashboard/list-imports', request.url))
+  // Se não estiver autenticado e tentar acessar /dashboard, redireciona para /login
+  if (!session && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
+
+  return NextResponse.next()
 }
 
-// Remove o matcher para que o middleware rode em todas as rotas
+// Configura em quais rotas o middleware será executado
+export const config = {
+  matcher: ['/dashboard/:path*', '/login']
+}

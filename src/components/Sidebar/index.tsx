@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
 import {
   XMarkIcon,
+  ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowsRightLeftIcon, ListBulletIcon } from '@heroicons/react/24/solid'
+import { signOut } from 'next-auth/react'
 
 const navigation = [
   { name: 'Importações', href: '/dashboard/list-imports', icon: ListBulletIcon },
@@ -37,14 +39,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-50">
-        <body class="h-full">
-        ```
-      */}
       <div>
         <Dialog open={sidebarOpen} onClose={setSidebarOpen} className="relative z-50 lg:hidden">
           <DialogBackdrop
@@ -138,6 +132,15 @@ export default function Sidebar() {
                     </li> */}
                   </ul>
                 </nav>
+                <div className="mt-auto pb-4">
+                  <button
+                    onClick={() => signOut({ callbackUrl: '/login' })}
+                    className="flex w-full items-center gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-brand-600"
+                  >
+                    <ArrowLeftOnRectangleIcon className="size-6 text-gray-400" />
+                    Sair
+                  </button>
+                </div>
               </div>
             </DialogPanel>
           </div>
@@ -232,6 +235,15 @@ export default function Sidebar() {
                 </li> */}
               </ul>
             </nav>
+            <div className="mt-auto pb-4">
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                className="flex w-full items-center gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-200 hover:text-brand-600"
+              >
+                <ArrowLeftOnRectangleIcon className="size-6 text-gray-400" />
+                Sair
+              </button>
+            </div>
           </div>
         </div>
 

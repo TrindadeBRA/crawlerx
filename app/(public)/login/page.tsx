@@ -1,33 +1,67 @@
+'use client'
+
 import Image from "next/image";
+import { signIn } from "next-auth/react";
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+    const router = useRouter()
+    const [error, setError] = useState<string>('')
+    const [loading, setLoading] = useState(false)
+
+    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+        setError('')
+        setLoading(true)
+
+        const formData = new FormData(e.currentTarget)
+
+        try {
+            const result = await signIn('credentials', {
+                username: formData.get('email'),
+                password: formData.get('password'),
+                redirect: false
+            })
+
+            if (result?.error) {
+                setError('Credenciais inválidas')
+            } else {
+                router.push('/dashboard/list-imports')
+                router.refresh()
+            }
+        } catch (error) {
+            setError('Ocorreu um erro ao fazer login')
+            console.error('Erro ao fazer login:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
         <>
-            {/*
-          This example requires updating your template:
-  
-          ```
-          <html class="h-full bg-gray-50">
-          <body class="h-full">
-          ```
-        */}
             <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
-                <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                    <Image
-                        alt="Sua Empresa"
-                        src="/assets/images/crawlerx-logo.png"
-                        className="mx-auto size-[180px]"
-                        width={180}
-                        height={180}
-                    />
-                </div>
 
                 <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
                     <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
-                        <h2 className="text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-                            Login
-                        </h2>
-                        <form action="#" method="POST" className="space-y-6 mt-6">
+                        
+                        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                            <Image
+                                alt="Sua Empresa"
+                                src="/assets/images/crawlerx-logo.png"
+                                className="mx-auto size-[180px]"
+                                width={180}
+                                height={180}
+                            />
+                        </div>
+
+                        {error && (
+                            <div className="mt-4 p-3 text-sm text-red-500 bg-red-50 rounded-md">
+                                {error}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-6 mt-6">
                             <div>
                                 <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
                                     Endereço de e-mail
@@ -96,31 +130,20 @@ export default function Login() {
                                         Lembrar de mim
                                     </label>
                                 </div>
-
-                                <div className="text-sm/6">
-                                    <a href="#" className="font-semibold text-brand-600 hover:text-brand-500">
-                                        Esqueceu a senha?
-                                    </a>
-                                </div>
                             </div>
 
                             <div>
                                 <button
                                     type="submit"
-                                    className="flex w-full justify-center rounded-md bg-brand-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+                                    disabled={loading}
+                                    className="flex w-full justify-center rounded-md bg-brand-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:opacity-50"
                                 >
-                                    Entrar
+                                    {loading ? 'Entrando...' : 'Entrar'}
                                 </button>
                             </div>
                         </form>
                     </div>
 
-                    <p className="mt-10 text-center text-sm/6 text-gray-500">
-                        Ainda não é membro?{' '}
-                        <a href="#" className="font-semibold text-brand-600 hover:text-brand-500">
-                            Comece seu teste gratuito de 14 dias
-                        </a>
-                    </p>
                 </div>
             </div>
         </>
