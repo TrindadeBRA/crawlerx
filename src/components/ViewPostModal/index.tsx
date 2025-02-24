@@ -97,11 +97,22 @@ export default function ViewPostModal() {
                       </div>
                     )}
 
+                    {
+                      post.processed_image_prompt && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-500">Prompt da Imagem</h3>
+                          <p className="mt-1 text-sm text-gray-900">{post.processed_image_prompt}</p>
+                        </div>
+                      )
+                    }
+
                     {post.processed_image_url && (
                       <div>
                         <h3 className="text-sm font-medium text-gray-500">Imagem Processada</h3>
                         <Image
-                          src={post.processed_image_url}
+                          src={post.processed_image_url.startsWith('data:') 
+                            ? post.processed_image_url 
+                            : `data:image/png;base64,${post.processed_image_url}`}
                           alt="Imagem processada"
                           className="mt-1 rounded-lg s-full"
                           width={800}

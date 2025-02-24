@@ -34,7 +34,7 @@ model Post {
   processed_full_post    String?    @db.LongText // Conteúdo completo do post, incluindo o título e o conteúdo
   processed_seo_content  String?    @db.LongText // SEO description do post
   processed_image_prompt String?    @db.LongText // Prompt da imagem processada do post
-  processed_image_url    String?    @db.Text // URL da imagem processada do post
+  processed_image_url    String?    @db.LongText // URL da imagem processada do post ou string base64
   wp_image_id            Int? // ID da imagem no WordPress
   wp_image_url           String?    @db.Text // URL da imagem no WordPress
   wp_post_id             Int? // ID do post no WordPress

@@ -75,7 +75,8 @@ export const agents = {
 
             Regras Importantes:
             1. O prompt deve ser curto e direto, capturando o tema central do resumo e os elementos visuais essenciais
-            2. A imagem deve ter um estilo elegante e narrativo, com detalhes sutis, texturas suaves e um toque cinematográfico ou literário
+            2. A imagem deve ter um estilo elegante e narrativo, com detalhes sutis, texturas suaves e um toque cinematográfico ou literário.
+            3. O prompt deve ser em inglês.
 
             Diretrizes para Criar o Prompt:
             1. Identifique o Tema Central: Determine o foco principal do resumo (romance histórico, biografia inspiradora, filme de suspense, etc.)
@@ -85,6 +86,9 @@ export const agents = {
             5. Cuidado com o uso de direitos autorais: Não use imagens que não tenham permissão para uso comercial.
 
             Com base no conteúdo fornecido, crie um prompt conciso para a IA de criação de imagens que represente visualmente o tema central da obra.
+        `,
+        createNegativePrompt: `
+            Never include text in the images, nothing written in the images.
         `
     }
 }

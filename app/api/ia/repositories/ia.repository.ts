@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { agents } from '../agents';
 
+
 interface Task {
   type: 'processArticle' | 'generateHtml' | 'generateImagePrompt' | 'generateImage' | 'extractTitle' | 'createSeoDescription';
   title?: string;
@@ -11,11 +12,15 @@ interface Task {
 
 export class IARepository {
   private client: OpenAI;
-
   constructor() {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not set');
+    }
+
     this.client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+
   }
 
   private async executeWithRetries(task: Task, maxRetries = 1): Promise<string> {
@@ -58,7 +63,7 @@ export class IARepository {
           throw error;
         }
         await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-        
+
       }
     }
     throw new Error('Failed to execute task after all retries');
@@ -67,7 +72,7 @@ export class IARepository {
   private async executeProcessArticle(title: string, content: string): Promise<string> {
     const response = await this.client.chat.completions.create({
       messages: [
-        { 
+        {
           role: 'user',
           content: `
             Instruções: ${agents.copywriter.process}
@@ -80,8 +85,12 @@ export class IARepository {
       model: 'gpt-4o-mini',
     });
 
-    const tokensUsed = response.usage?.total_tokens || 0;
-    console.log(`Tokens usados para processar o artigo: ${tokensUsed}`);
+    // const tokensUsed = response.usage?.total_tokens || 0;
+    // const promptTokens = response.usage?.prompt_tokens || 0;
+    // const completionTokens = response.usage?.completion_tokens || 0;
+    // console.log(`Tokens do prompt: ${promptTokens}`);
+    // console.log(`Tokens da resposta: ${completionTokens}`);
+    // console.log(`Total de tokens: ${tokensUsed}`);
 
     return response.choices[0].message.content || '';
   }
@@ -101,12 +110,12 @@ export class IARepository {
       model: 'gpt-4o-mini',
     });
 
-    const tokensUsed = response.usage?.total_tokens || 0;
-    console.log(`Tokens usados para extrair o título: ${tokensUsed}`);
+    // const tokensUsed = response.usage?.total_tokens || 0;
+    // console.log(`Tokens usados para extrair o título: ${tokensUsed}`);
 
     return response.choices[0].message.content || '';
   }
-  
+
   private async executeCreateSeoDescription(processedArticle: string): Promise<string> {
     const response = await this.client.chat.completions.create({
       messages: [
@@ -122,8 +131,8 @@ export class IARepository {
       model: 'gpt-4o-mini',
     });
 
-    const tokensUsed = response.usage?.total_tokens || 0;
-    console.log(`Tokens usados para criar a descrição SEO: ${tokensUsed}`);
+    // const tokensUsed = response.usage?.total_tokens || 0;
+    // console.log(`Tokens usados para criar a descrição SEO: ${tokensUsed}`);
 
     return response.choices[0].message.content || '';
   }
@@ -131,7 +140,7 @@ export class IARepository {
   private async executeGenerateHtml(processedArticle: string): Promise<string> {
     const response = await this.client.chat.completions.create({
       messages: [
-        { 
+        {
           role: 'user',
           content: `
             Instruções: ${agents.webdeveloper.createHtml}
@@ -143,8 +152,8 @@ export class IARepository {
       model: 'gpt-4o-mini',
     });
 
-    const tokensUsed = response.usage?.total_tokens || 0;
-    console.log(`Tokens usados para criar o HTML: ${tokensUsed}`);
+    // const tokensUsed = response.usage?.total_tokens || 0;
+    // console.log(`Tokens usados para criar o HTML: ${tokensUsed}`);
 
     return response.choices[0].message.content || '';
   }
@@ -153,8 +162,8 @@ export class IARepository {
     const response = await this.client.chat.completions.create({
       messages: [
         {
-            role: 'user',
-            content: `Instruções: ${agents.artDirector.createTitle}
+          role: 'user',
+          content: `Instruções: ${agents.artDirector.createTitle}
 
             Artigo: ${processedArticle}
           `
@@ -163,23 +172,75 @@ export class IARepository {
       model: 'gpt-4o-mini',
     });
 
-    const tokensUsed = response.usage?.total_tokens || 0;
-    console.log(`Tokens usados para criar o prompt de imagem: ${tokensUsed}`);
+    // const tokensUsed = response.usage?.total_tokens || 0;
+    // console.log(`Tokens usados para criar o prompt de imagem: ${tokensUsed}`);
 
     return response.choices[0].message.content || '';
   }
 
-  private async executeGenerateImage(prompt: string): Promise<string> {
-    const response = await this.client.images.generate({
-      prompt,
-      n: 1,
-      size: '1024x1024',
-      response_format: 'url',
-      model: 'dall-e-3',
-      quality: 'standard',
+  private async executeGenerateImagePromptDallE3(processedArticle: string): Promise<string> {
+    const response = await this.client.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: `Instruções: ${agents.artDirector.createTitle}
+
+            Artigo: ${processedArticle}
+          `
+        },
+      ],
+      model: 'gpt-4o-mini',
     });
 
-    return response.data[0].url || '';
+    return response.choices[0].message.content || '';
+  }
+
+
+  private async executeGenerateImage(prompt: string): Promise<string> {
+    const apiKey = process.env.STABILITY_AI_API_KEY;
+    const apiHost = 'https://api.stability.ai';
+    
+    try {
+      const formData = new FormData();
+      
+      formData.append('prompt', prompt);
+      formData.append('model', 'sd3.5-medium');
+      formData.append('output_format', 'png');
+      formData.append('aspect_ratio', '1:1');
+      formData.append('cfg_scale', '7');
+      formData.append('style_preset', 'anime');
+      formData.append('negative_prompt', agents.artDirector.createNegativePrompt);
+
+      const response = await fetch(
+        `${apiHost}/v2beta/stable-image/generate/sd3`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Accept': 'application/json; type=image/png',
+          },
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Resposta da API com erro:', error);
+        throw new Error(`Erro na geração da imagem: ${JSON.stringify(error)}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.image) {
+        console.error('Resposta sem imagem:', data);
+        throw new Error('Nenhuma imagem foi gerada');
+      }
+
+      return data.image;
+    } catch (error) {
+      console.error('Erro detalhado:', error);
+      throw error;
+    }
   }
 
   async processArticle(title: string, content: string): Promise<string> {
