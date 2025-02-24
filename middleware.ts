@@ -6,9 +6,9 @@ import { auth } from '@/app/auth'
 export async function middleware(request: NextRequest) {
   const session = await auth()
   
-  // Se estiver autenticado e tentar acessar /login, redireciona para /dashboard/list-imports
+  // Se estiver autenticado e tentar acessar /login, redireciona para /dashboard/imports
   if (session && request.nextUrl.pathname === '/login') {
-    return NextResponse.redirect(new URL('/dashboard/list-imports', request.url))
+    return NextResponse.redirect(new URL('/dashboard/imports', request.url))
   }
 
   // Se não estiver autenticado e tentar acessar /dashboard, redireciona para /login

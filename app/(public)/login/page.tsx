@@ -27,7 +27,7 @@ export default function Login() {
             if (result?.error) {
                 setError('Credenciais inválidas')
             } else {
-                router.push('/dashboard/list-imports')
+                router.push('/dashboard/imports')
                 router.refresh()
             }
         } catch (error) {

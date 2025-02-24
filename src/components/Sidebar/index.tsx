@@ -13,9 +13,9 @@ import { ArrowsRightLeftIcon, ListBulletIcon } from '@heroicons/react/24/solid'
 import { signOut } from 'next-auth/react'
 
 const navigation = [
-  { name: 'Importações', href: '/dashboard/list-imports', icon: ListBulletIcon },
+  { name: 'Importações', href: '/dashboard/imports', icon: ListBulletIcon },
   // { name: 'Import. de Vídeos (Em breve)', href: '/', icon: VideoCameraIcon },
-  { name: 'Origens', href: '/dashboard/origin', icon: ArrowsRightLeftIcon },
+  { name: 'Origens', href: '/dashboard/origins', icon: ArrowsRightLeftIcon },
 ]
 
 // const teams = [
