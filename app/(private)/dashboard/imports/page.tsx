@@ -34,14 +34,14 @@ export default function Home() {
       >
         <button 
           type="button" 
-          className="font-bold ml-auto px-4 py-2 text-white rounded bg-primary" 
+          className="font-bold ml-auto px-4 py-2 text-white rounded bg-primary text-sm md:text-base" 
           onClick={handleImport}
         >
           Importar com CrawlerX
         </button>
         <button 
           type="button" 
-          className="font-bold ml-auto px-4 py-2 text-white rounded bg-primary" 
+          className="font-bold ml-auto px-4 py-2 text-white rounded bg-primary text-sm md:text-base" 
           onClick={handleManualImport}
         >
           Importar Manual
