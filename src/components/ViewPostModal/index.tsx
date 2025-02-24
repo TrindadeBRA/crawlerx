@@ -73,6 +73,15 @@ export default function ViewPostModal() {
                       <p className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{post.content}</p>
                     </div>
 
+                    {
+                      post.processed_full_post && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-500">Conteúdo Completo</h3>
+                          <p className="mt-1 text-sm text-gray-900">{post.processed_full_post}</p>
+                        </div>
+                      )
+                    }
+
                     {post.processed_title && (
                       <div>
                         <h3 className="text-sm font-medium text-gray-500">Título Processado</h3>

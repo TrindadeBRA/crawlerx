@@ -8,10 +8,8 @@ export const agents = {
             2. **SEO de qualidade:** A reescrita deve ser otimizada para SEO, utilizando práticas recomendadas, como uso inteligente de palavras-chave, mas sem exageros. As palavras-chave devem ser distribuídas de forma natural, sem tornar o texto repetitivo ou forçado.
             
             3. **Evitar repetições:** O conteúdo não deve ser redundante. Evitar o uso excessivo das mesmas palavras ou frases.
-            
-            4. **Primeira pessoa:** Escrever em primeira pessoa, de uma forma acessível e leve. O tom não precisa ser muito formal, mas deve ser profissional e claro.
-            
-            5. **Remover qualquer menção à origem do artigo original:** Não deve aparecer nenhuma referência a fontes, autor, ou informações relacionadas ao artigo original. Apenas o novo conteúdo será mantido.
+                        
+            4. **Remover qualquer menção à origem do artigo original:** Não deve aparecer nenhuma referência a fontes, autor, ou informações relacionadas ao artigo original. Apenas o novo conteúdo será mantido.
         `,
         createSeoDescription: `
             O SEO description deve ser conciso e informativo, destacando os principais pontos do artigo. Utilize as seguintes diretrizes:

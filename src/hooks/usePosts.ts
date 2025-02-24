@@ -19,7 +19,9 @@ export function usePosts() {
         throw new Error('Falha ao buscar posts')
       }
       return response.json()
-    }
+    },
+    refetchInterval: 10000,
+    refetchOnWindowFocus: false
   })
 
   // Mutation para processar um post
