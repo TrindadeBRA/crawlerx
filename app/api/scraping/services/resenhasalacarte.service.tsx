@@ -6,7 +6,7 @@ export class ResenhasALaCarteCrawler extends Crawler {
     await this.init();
     const url = options.searchParam
       ? `https://resenhasalacarte.com.br/?s=${encodeURIComponent(options.searchParam)}`
-      : "https://resenhasalacarte.com.br/resenhas-a-z/";
+      : "https://resenhasalacarte.com.br/";
 
     console.log("Acessando a página:", url)
     await this.navigate(url);
@@ -16,7 +16,7 @@ export class ResenhasALaCarteCrawler extends Crawler {
       if (options.searchParam) {
         articles = document.querySelectorAll('.post-resumo');
       } else {
-        articles = document.querySelectorAll('.post-texto a[href^="https://resenhasalacarte.com.br/resenhas/"]');
+        articles = document.querySelectorAll('.post-resumo');
       }
       console.log("Artigos encontrados:", articles)
 
@@ -30,9 +30,9 @@ export class ResenhasALaCarteCrawler extends Crawler {
           urlElement = article.querySelector('.post-titulo h1 a');
           contentElement = article.querySelector('.post-texto');
         } else {
-          titleElement = article;
-          urlElement = article;
-          contentElement = article.parentElement;
+          titleElement = article.querySelector('.post-titulo h1 a');
+          urlElement = article.querySelector('.post-titulo h1 a');
+          contentElement = article.querySelector('.post-texto');
         }
 
         return {

@@ -20,7 +20,7 @@ export function usePosts() {
       }
       return response.json()
     },
-    refetchInterval: 10000,
+    refetchInterval: 1000,
     refetchOnWindowFocus: false
   })
 
