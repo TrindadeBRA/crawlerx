@@ -170,6 +170,66 @@ export function usePosts() {
     }
   })
 
+  // Mutation para publicar no WordPress
+  const { mutate: publishPost, isPending: isPublishing } = useMutation({
+    mutationFn: async (post: Post) => {
+      // Validações iniciais
+      if (!post.processed_title || !post.processed_content || !post.processed_seo_content) {
+        throw new Error('Post não está completamente processado. Certifique-se que o texto foi processado.');
+      }
+
+      if (!post.processed_image_url) {
+        throw new Error('Post não possui imagem processada. Certifique-se que a imagem foi processada.');
+      }
+
+      setProcessingQueue(prev => [...prev, post.id])
+
+      try {
+        const response = await fetch("/api/crawlerx-wp/routes/publish-post", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            post: {
+              ...post,
+              // Garantindo que os campos processados sejam enviados
+              title: post.processed_title,
+              content: post.processed_content,
+              seoDescription: post.processed_seo_content,
+              imageUrl: post.processed_image_url
+            }
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Erro ao publicar o post');
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Falha na publicação do post');
+        }
+
+        return data;
+      } catch (error) {
+        console.error('Erro ao publicar:', error);
+        throw error;
+      }
+    },
+    onSuccess: (_, post) => {
+      setProcessingQueue(prev => prev.filter(id => id !== post.id))
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+      showNotification('Sucesso', 'Post publicado com sucesso!', 'success')
+    },
+    onError: (error: Error, post) => {
+      setProcessingQueue(prev => prev.filter(id => id !== post.id))
+      showNotification('Erro', error.message, 'error')
+    }
+  })
+
   return {
     posts: data?.data ?? [],
     isLoading,
@@ -181,6 +241,8 @@ export function usePosts() {
     isRemoving,
     savePost,
     isSaving,
+    publishPost,
+    isPublishing,
     pagination: {
       page,
       pageSize,

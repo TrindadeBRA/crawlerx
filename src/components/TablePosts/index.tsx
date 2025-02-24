@@ -21,7 +21,9 @@ export default function TablePosts() {
     processPost,
     processImage,
     removePost,
+    publishPost,
     isRemoving,
+    isPublishing,
     pagination: { page, setPage, pageCount },
     processingQueue,
   } = usePosts();
@@ -75,7 +77,9 @@ export default function TablePosts() {
             onRemove={removePost}
             onProcessPost={processPost}
             onProcessImage={processImage}
+            onPublishPost={publishPost}
             isRemoving={isRemoving}
+            isPublishing={isPublishing}
             processingQueue={processingQueue}
           />
         </div>

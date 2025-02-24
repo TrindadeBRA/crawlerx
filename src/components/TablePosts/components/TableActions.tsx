@@ -9,8 +9,9 @@ export function TableActions({
   onRemove,
   onProcessPost,
   onProcessImage,
+  onPublishPost,
   isRemoving,
-  processingQueue
+  processingQueue,
 }: TableActionsProps) {
   const { handleOpen } = useViewPostModal();
 
@@ -66,16 +67,24 @@ export function TableActions({
       <Tooltip id="process-image-tooltip" content="Processar imagem" />
 
       <button
-        onClick={() => console.log({
-          title: post.processed_title?.slice(0, 50),
-          content: post.processed_content?.slice(0, 50),
-          imageUrl: post.processed_image_url,
-        })}
+        onClick={() => {
+          if (
+            post.processed_title &&
+            post.processed_content &&
+            post.processed_seo_content &&
+            post.processed_image_url
+          ) {
+            onPublishPost(post as any);
+          }
+        }}
         className={twMerge(
           'text-primary hover:text-primary/80',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:text-gray-500',
         )}
-        disabled={post.status !== 'PROCESSED_IMAGE'}
+        disabled={
+          post.status !== 'PROCESSED_IMAGE' ||
+          processingQueue.includes(post.id)
+        }
         data-tooltip-id="publish-tooltip"
       >
         <ArrowUpCircleIcon className="size-5" />

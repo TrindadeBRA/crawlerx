@@ -57,6 +57,10 @@ export class PostsRepository {
 
   async update(postId: number, data: Partial<Post>): Promise<Post> {
     try {
+      if (!postId || !data) {
+        throw new Error('ID do post e dados para atualização são obrigatórios');
+      }
+
       return await this.prisma.post.update({
         where: { id: postId },
         data
