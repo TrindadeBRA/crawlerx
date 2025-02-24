@@ -11,7 +11,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:format": "prisma format",
-    "prisma:deploy": "prisma migrate deploy"
+    "prisma:deploy": "prisma migrate deploy",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
@@ -25,6 +26,7 @@
     "next-auth": "^5.0.0-beta.25",
     "openai": "^4.85.4",
     "puppeteer": "^24.2.1",
+    "puppeteer-core": "^24.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
