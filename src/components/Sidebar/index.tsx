@@ -11,9 +11,9 @@ import Link from 'next/link'
 import { ArrowsRightLeftIcon, ListBulletIcon } from '@heroicons/react/24/solid'
 
 const navigation = [
-  { name: 'Importações', href: '/', icon: ListBulletIcon },
+  { name: 'Importações', href: '/dashboard/list-imports', icon: ListBulletIcon },
   // { name: 'Import. de Vídeos (Em breve)', href: '/', icon: VideoCameraIcon },
-  { name: 'Origens', href: '/origens', icon: ArrowsRightLeftIcon },
+  { name: 'Origens', href: '/dashboard/origin', icon: ArrowsRightLeftIcon },
 ]
 
 // const teams = [

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import Header from "../../../src/components/Header";
+import Header from "../../../../src/components/Header";
 import Link from "next/link";
 import { ArrowsRightLeftIcon, GlobeAltIcon } from "@heroicons/react/24/solid";
 

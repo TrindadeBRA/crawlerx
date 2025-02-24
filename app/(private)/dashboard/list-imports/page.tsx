@@ -1,11 +1,11 @@
 'use client'
 
 import { useImportModal } from "@/src/hooks/useImportModal";
-import Header from "../../src/components/Header";
-import ImportManualModal from "../../src/components/ImportManualModal";
-import ImportModal from "../../src/components/ImportModal";
-import Notification from "../../src/components/Notification";
-import TablePosts from "../../src/components/TablePosts";
+import Header from "../../../../src/components/Header";
+import ImportManualModal from "../../../../src/components/ImportManualModal";
+import ImportModal from "../../../../src/components/ImportModal";
+import Notification from "../../../../src/components/Notification";
+import TablePosts from "../../../../src/components/TablePosts";
 import { useManualImportModal } from "@/src/hooks/usemanualImportModal";
 import { ListBulletIcon } from "@heroicons/react/24/solid";
 import ViewPostModal from '@/src/components/ViewPostModal'
