@@ -75,6 +75,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Define permissões corretas
 RUN chown -R nextjs:nodejs .
@@ -90,4 +92,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Comando para iniciar a aplicação
-CMD ["node", "server.js"]
+CMD ["/bin/sh", "-c", "npx prisma migrate deploy && node server.js"]

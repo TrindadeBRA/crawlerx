@@ -15,6 +15,10 @@ echo "Starting container..."
 docker run -d \
     --name crawlerx \
     -p 3000:3000 \
+    --health-cmd="curl -f http://localhost:3000/api/health || exit 1" \
+    --health-interval=10s \
+    --health-timeout=5s \
+    --health-retries=3 \
     crawlerx
 
 echo "Container started successfully! Access at http://localhost:3000"
