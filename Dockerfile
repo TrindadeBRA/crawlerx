@@ -52,6 +52,7 @@ ENV DATABASE_URL=$DATABASE_URL
 ENV AUTH_SECRET=$AUTH_SECRET
 ENV AUTH_USERNAME=$AUTH_USERNAME
 ENV AUTH_PASSWORD=$AUTH_PASSWORD
+ENV NODE_ENV=production
 
 # Gera o Prisma Client e faz o build da aplicação
 RUN npx prisma generate
@@ -69,10 +70,12 @@ RUN adduser --system --uid 1001 nextjs
 
 # Copia os arquivos necessários
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/prisma ./prisma
+
+# Define permissões corretas
+RUN chown -R nextjs:nodejs .
 
 # Define o usuário não-root
 USER nextjs
