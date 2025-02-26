@@ -106,5 +106,8 @@
 Este projeto está sob a licença **MIT**. Sinta-se livre para usá-lo e modificá-lo!
 
 ---
+
+## ✒️ Autor
+
 Desenvolvido com ❤️ por [Lucas Trindade](https://github.com/trindadebra)
 
