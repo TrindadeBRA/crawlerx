@@ -55,16 +55,6 @@ export const agents = {
             9. **Não inserir \`\`\`html no início e no final do código:** Apenas forneça o código HTML puro.
 
             10. **Não incluir o primeiro título:** O primeiro título já está no conteúdo original.
-            
-            Exemplo de estrutura de HTML:
-            <h2>Resumo do livro</h2>
-            <p>Texto do resumo...</p>
-            [featured-image]
-            <ul><li>Curiosidade</li></ul>
-            <h2>Personagens</h2>
-            <ol><li><strong>Nome:</strong> descrição do personagem</li></ol>
-            <h2>Conclusão</h2>
-            <p>Texto de conclusão...</p>
         `
     },
     artDirector: {
