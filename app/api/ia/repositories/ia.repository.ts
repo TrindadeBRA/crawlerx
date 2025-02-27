@@ -208,7 +208,7 @@ export class IARepository {
       formData.append('output_format', 'png');
       formData.append('aspect_ratio', '1:1');
       formData.append('cfg_scale', '7');
-      formData.append('style_preset', 'anime');
+      formData.append('style_preset', 'digital-art');
       formData.append('negative_prompt', agents.artDirector.createNegativePrompt);
 
       const response = await fetch(
