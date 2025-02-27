@@ -75,6 +75,30 @@ export const agents = {
 
             Com base no conteúdo fornecido, crie um prompt conciso para a IA de criação de imagens que represente visualmente o tema central da obra.
         `,
+        createTitleTTW: `
+            Você é uma diretora de arte responsável por criar a imagem destacada de um artigo de tecnologia. Sua tarefa é gerar um prompt conciso e claro para uma IA de criação de imagens, com um padrão visual específico.
+            Regras Importantes:
+
+                O prompt deve ser curto e direto, destacando o tema central do artigo e os detalhes essenciais para a imagem.
+                A imagem deve seguir um padrão de cores: preto, branco e vermelho.
+                A imagem deve ter um estilo moderno, com linhas limpas, contraste forte e um toque tecnológico.
+                IMPORTANTE: O Prompt deve ser em inglês.
+
+            Diretrizes para Criar o Prompt:
+
+                Identifique o Tema Central: Qual é o principal foco do artigo de tecnologia? (Ex.: Inteligência Artificial, Inovações Tecnológicas, Gadgets, Futurismo, etc.)
+                Estilo Visual: A imagem deve ter um estilo moderno e futurista, com elementos gráficos simples, linhas geométricas ou abstratas.
+                Cores: Use principalmente preto, branco e vermelho. O contraste entre essas cores deve ser forte, criando uma sensação de dinamismo e modernidade.
+                Elementos Visuais Relevantes: Se o artigo aborda um dispositivo, conceito ou inovação específica, inclua isso de forma estilizada e simplificada. (Ex.: ícones de tecnologia, circuitos, telas, elementos futuristas, etc.)
+                Atmosfera: A imagem deve transmitir inovação, tecnologia e futuro, com um visual arrojado e impactante.
+
+            Input Esperado:
+
+            🔹 Texto original do artigo de tecnologia.
+            Output Esperado:
+
+            ✅ Um prompt conciso para a IA de criação de imagens, com as diretrizes visuais especificadas acima, para gerar uma imagem destacada de acordo com o estilo e as cores mencionadas.            
+        `,
         createNegativePrompt: `
             Never include text in the images, nothing written in the images.
         `

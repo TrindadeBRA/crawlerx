@@ -1,6 +1,7 @@
 import { Post, PostStatus } from '@prisma/client';
 import { WordPressRepository } from '../repositories/wordpress.repository';
 import { PostsController } from '../../posts/controllers/posts.controller';
+import { CreatePostRequest, UploadImageRequest } from '../types';
 
 interface PublishPostResult {
   success: boolean;
@@ -27,21 +28,34 @@ export class WordPressController {
         throw new Error('Descrição SEO é obrigatória');
       }
 
-      // 1. Criar post no WordPress
-      const wpPost = await this.wordpressRepository.createPost({
+      const payloadCreatePost: CreatePostRequest = {
         title: post.processed_title || post.title,
         content: post.processed_content || post.content,
-        excerpt: post.processed_seo_content // Garantindo que o excerpt existe
-      });
+        excerpt: post.processed_seo_content
+      }
+      
+      if (process.env.PROJECT_NAME === "TTW") {
+        payloadCreatePost.user_id = 3;
+      }
+
+      // 1. Criar post no WordPress
+      const wpPost = await this.wordpressRepository.createPost(payloadCreatePost);
 
       // 2. Upload da imagem (somente se houver imagem)
       let uploadedImage = null;
       if (post.processed_image_url) {
-        uploadedImage = await this.wordpressRepository.uploadImage({
+
+        const payloadUploadImage: UploadImageRequest = {
           post_id: wpPost.wp_post_id,
           image_base64: post.processed_image_url,
           title: post.processed_title || post.title
-        });
+        }
+
+        if (process.env.PROJECT_NAME === "TTW") {
+          payloadUploadImage.cover_image_url = "https://conteudo.thetrinityweb.com.br/wp-content/uploads/2024/10/TrinityLogo.jpg";
+        }
+
+        uploadedImage = await this.wordpressRepository.uploadImage(payloadUploadImage);
       }
 
       // 3. Atualizar post local
@@ -49,10 +63,8 @@ export class WordPressController {
         status: PostStatus.POSTED,
         wp_post_id: wpPost.wp_post_id,
         wp_slug: wpPost.wp_slug,
-        ...(uploadedImage && {
-          wp_image_id: uploadedImage.wp_image_id,
-          wp_image_url: uploadedImage.wp_image_url
-        })
+        wp_image_id: uploadedImage?.wp_image_id,
+        wp_image_url: uploadedImage?.wp_image_url
       };
 
       await this.postsController.updatePost(post.id, updateData);

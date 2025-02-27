@@ -163,7 +163,7 @@ export class IARepository {
       messages: [
         {
           role: 'user',
-          content: `Instruções: ${agents.artDirector.createTitle}
+          content: `Instruções: ${process.env.PROJECT_NAME === "TTW" ? agents.artDirector.createTitleTTW : agents.artDirector.createTitle}
 
             Artigo: ${processedArticle}
           `

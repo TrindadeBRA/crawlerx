@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowsRightLeftIcon, ListBulletIcon } from '@heroicons/react/24/solid'
 import { signOut } from 'next-auth/react'
+import packageJson from '../../../package.json'
 
 const navigation = [
   { name: 'Importações', href: '/dashboard/imports', icon: ListBulletIcon },
@@ -140,6 +141,9 @@ export default function Sidebar() {
                     <ArrowLeftOnRectangleIcon className="size-6 text-gray-400" />
                     Sair
                   </button>
+                  <p className="text-xs text-gray-400 text-center w-full">
+                    V{packageJson.version}
+                  </p>
                 </div>
               </div>
             </DialogPanel>
@@ -243,26 +247,29 @@ export default function Sidebar() {
                 <ArrowLeftOnRectangleIcon className="size-6 text-gray-400" />
                 Sair
               </button>
+              <p className="text-xs text-gray-400 text-center w-full">
+                V{packageJson.version}
+              </p>
             </div>
           </div>
         </div>
 
 
-      {/* Mobile Header com botão do menu */}
-      <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
-        <button 
-          type="button" 
-          onClick={() => setSidebarOpen(true)} 
-          className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
-        >
-          <span className="sr-only">Abrir menu</span>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-          </svg>
-        </button>
-        <div className="flex-1 text-sm font-semibold text-gray-900">Dashboard</div>
-      </div>
-       
+        {/* Mobile Header com botão do menu */}
+        <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+          >
+            <span className="sr-only">Abrir menu</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+          <div className="flex-1 text-sm font-semibold text-gray-900">Dashboard</div>
+        </div>
+
       </div>
     </>
   )

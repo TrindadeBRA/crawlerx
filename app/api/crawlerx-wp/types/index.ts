@@ -3,12 +3,14 @@ export interface CreatePostRequest {
   title: string;
   content: string;
   excerpt: string;
+  user_id?: number;
 }
 
 export interface UploadImageRequest {
   post_id: number;
   image_base64: string;
   title: string;
+  cover_image_url?: string;
 }
 
 // Tipos para respostas
