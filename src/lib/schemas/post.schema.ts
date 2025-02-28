@@ -26,4 +26,12 @@ export const importPostsSchema = z.object({
     .max(300, 'A quantidade máxima é 300')
 })
 
-export type ImportPostsInput = z.infer<typeof importPostsSchema> 
+export type ImportPostsInput = z.infer<typeof importPostsSchema>
+
+export const importVideoSchema = z.object({
+  url: z.string()
+    .min(1, 'A URL é obrigatória')
+    .url('URL inválida')
+})
+
+export type ImportVideoInput = z.infer<typeof importVideoSchema> 

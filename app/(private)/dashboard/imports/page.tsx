@@ -2,18 +2,21 @@
 
 import { useImportModal } from "@/src/hooks/useImportModal";
 import Header from "../../../../src/components/Header";
-import ImportManualModal from "../../../../src/components/ImportManualModal";
+import ImportManualModal from "../../../../src/components/ImportManualModal";   
 import ImportModal from "../../../../src/components/ImportModal";
 import Notification from "../../../../src/components/Notification";
 import TablePosts from "../../../../src/components/TablePosts";
 import { useManualImportModal } from "@/src/hooks/usemanualImportModal";
 import { ListBulletIcon } from "@heroicons/react/24/solid";
 import ViewPostModal from '@/src/components/ViewPostModal'
+import ImportVideoModal from "@/src/components/ImportVideoModal";
+import { useVideoImportModal } from "@/src/hooks/useVideoImportModal";
 
 export default function Home() {
 
   const { handleOpen } = useImportModal();
   const { handleOpen: handleOpenManualImport } = useManualImportModal();
+  const { handleOpen: handleOpenVideoImport } = useVideoImportModal();
 
   const handleImport = () => {
       console.log('Importando conteúdo');
@@ -24,7 +27,12 @@ export default function Home() {
       console.log('Importando manual');
       handleOpenManualImport();
   }
-  
+
+  const handleVideoImport = () => {
+    console.log('Importando vídeo');
+    handleOpenVideoImport();
+  }
+
   return (
     <div className="">
       <Header 
@@ -46,11 +54,19 @@ export default function Home() {
         >
           Importar Manual
         </button>
+        <button 
+          type="button" 
+          className="font-bold ml-auto px-4 py-2 text-white rounded bg-primary text-sm md:text-base" 
+          onClick={handleVideoImport}
+        >
+          Importar Vídeo
+        </button>
       </Header>
       <TablePosts />
       <ImportModal/>
       <ImportManualModal/>
       <ViewPostModal />
+      <ImportVideoModal />
       <Notification />
     </div>
   );
