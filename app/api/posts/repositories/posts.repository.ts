@@ -1,6 +1,7 @@
 import { PrismaClient, Post, PostStatus } from '@prisma/client';
 import { agents } from '@/app/api/ia/agents';
 import { IARepository } from '@/app/api/ia/repositories/ia.repository';
+import * as cheerio from 'cheerio';
 
 export class PostsRepository {
   private prisma: PrismaClient;
@@ -96,8 +97,14 @@ export class PostsRepository {
 
       // Obtém o HTML do body
       const html = await response.text();
+      const $ = cheerio.load(html);
+      const bodyContent = $('body').html();
 
-      const fullPost = await this.iaRepository.generateCustomPrompt(html, agents.copywriter.extractContent);
+      if (!bodyContent) {
+        throw new Error('Nenhum conteúdo encontrado na página');
+      }
+
+      const fullPost = await this.iaRepository.generateCustomPrompt(bodyContent, agents.copywriter.extractContent);
 
       const title = await this.iaRepository.generateCustomPrompt(fullPost, agents.copywriter.extractTitle);
 
