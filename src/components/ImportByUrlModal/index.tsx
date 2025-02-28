@@ -11,7 +11,7 @@ import { usePosts } from '@/src/hooks/usePosts'
 
 export default function ImportByUrlModal() {
   const { isOpen, handleClose } = useByUrlImportModal()
-  const { importByUrl, isImportingByUrl } = usePosts()
+  const { importFromUrl, isImportingFromUrl } = usePosts()
 
   const {
     register,
@@ -26,9 +26,22 @@ export default function ImportByUrlModal() {
   })
 
   const onSubmit = async (data: ImportByUrlInput) => {
-    await importByUrl(data.url)
-    reset()
-    handleClose()
+    try {
+      await new Promise((resolve, reject) => {
+        importFromUrl(data.url, {
+          onSuccess: () => {
+            reset();
+            resolve(true);
+            handleClose();
+          },
+          onError: (error) => {
+            reject(error);
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Erro ao importar:', error);
+    }
   }
 
   return (
@@ -85,10 +98,10 @@ export default function ImportByUrlModal() {
                     </button>
                     <button
                       type="submit"
-                      disabled={isImportingByUrl}
+                      disabled={isImportingFromUrl}
                       className="inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark focus:outline-none disabled:opacity-50"
                     >
-                      {isImportingByUrl ? 'Importando...' : 'Importar'}
+                      {isImportingFromUrl ? 'Importando...' : 'Importar'}
                     </button>
                   </div>
                 </form>

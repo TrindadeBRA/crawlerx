@@ -28,6 +28,16 @@ export const agents = {
 
             Exemplo de SEO description: "Explore [TEMA DO ARTIGO] e descubra [PONTO PRINCIPAL]. Aprenda sobre [ASSUNTO RELACIONADO] e melhore seu conhecimento em [PALAVRA-CHAVE]."
         `,
+        extractContent: `
+            Estou te enviando um HTML, de uma rtigo completo. Preciso que vc extraia o titulo e o conteúdo do artigo. E me retorne nesse formato:
+
+            **EXTRAIA TODO O CONTEUDO DO ARTIGO, SEM DEIXAR NADA DE FORA. SEM PULAR NADA.**
+
+            Título: [TÍTULO DO ARTIGO]
+            Conteúdo: [CONTEÚDO DO ARTIGO]
+
+            **Não retorne nada além do que foi solicitado.**
+            `,
         extractTitle: `
             Você deve extrair o título do artigo completo recebido.
 

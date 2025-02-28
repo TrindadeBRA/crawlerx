@@ -3,7 +3,7 @@ import { agents } from '../agents';
 
 
 interface Task {
-  type: 'processArticle' | 'generateHtml' | 'generateImagePrompt' | 'generateImage' | 'extractTitle' | 'createSeoDescription';
+  type: 'processArticle' | 'generateHtml' | 'generateImagePrompt' | 'generateImage' | 'extractTitle' | 'createSeoDescription' | 'generateCustomPrompt';
   title?: string;
   content?: string;
   processedArticle?: string;
@@ -28,6 +28,10 @@ export class IARepository {
       try {
         let result: string;
         switch (task.type) {
+          case 'generateCustomPrompt':
+            if (!task.content || !task.prompt) throw new Error('Content and prompt are required');
+            result = await this.executeGenerateCustomPrompt(task.content, task.prompt);
+            break;
           case 'processArticle':
             if (!task.title || !task.content) throw new Error('Title and content are required');
             result = await this.executeProcessArticle(task.title, task.content);
@@ -158,6 +162,27 @@ export class IARepository {
     return response.choices[0].message.content || '';
   }
 
+  private async executeGenerateCustomPrompt(content: string, prompt: string): Promise<string> {
+    const response = await this.client.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: `
+            Instruções: ${prompt}
+
+            Artigo processado: ${content}
+          `
+        },
+      ],
+      model: 'gpt-4o-mini',
+    });
+
+    // const tokensUsed = response.usage?.total_tokens || 0;
+    // console.log(`Tokens usados para extrair o título: ${tokensUsed}`);
+
+    return response.choices[0].message.content || '';
+  }
+
   private async executeGenerateImagePrompt(processedArticle: string): Promise<string> {
     const response = await this.client.chat.completions.create({
       messages: [
@@ -241,6 +266,10 @@ export class IARepository {
       console.error('Erro detalhado:', error);
       throw error;
     }
+  }
+
+  async generateCustomPrompt(content: string, prompt: string): Promise<string> {
+    return this.executeWithRetries({ type: 'generateCustomPrompt', content, prompt });
   }
 
   async processArticle(title: string, content: string): Promise<string> {

@@ -113,13 +113,8 @@ export class PostsService {
 
       const content = await this.postsRepository.fetchAndExtractContent(url);
 
-      console.log('Content', content);
-
-      return {
-        success: true,
-        content,
-        message: 'Conteúdo extraído com sucesso'
-      };
+      return content;
+      
     } catch (error) {
       console.error('Erro ao importar conteúdo:', error);
       throw error;

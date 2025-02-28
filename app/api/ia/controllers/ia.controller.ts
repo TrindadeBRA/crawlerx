@@ -79,4 +79,26 @@ export class IAController {
       };
     }
   }
+
+  async customPromptMessage({
+    content,
+    prompt,
+  }: {
+    content: string;
+    prompt: string;
+  }) {
+    try {
+      const customPrompt = await this.iaRepository.generateCustomPrompt(content, prompt);
+
+      return {
+        success: true,
+        customPrompt,
+      };
+    } catch (error) {
+      console.error("Erro no processamento:", error);
+      return {
+        success: false,
+      };
+    }
+  }
 } 

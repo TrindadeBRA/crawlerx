@@ -1,11 +1,14 @@
 import { PrismaClient, Post, PostStatus } from '@prisma/client';
-import * as cheerio from 'cheerio';
+import { agents } from '@/app/api/ia/agents';
+import { IARepository } from '@/app/api/ia/repositories/ia.repository';
 
 export class PostsRepository {
   private prisma: PrismaClient;
+  private iaRepository: IARepository;
 
   constructor() {
     this.prisma = new PrismaClient();
+    this.iaRepository = new IARepository();
   }
 
   async create(data: any): Promise<Post> {
@@ -94,29 +97,19 @@ export class PostsRepository {
       // Obtém o HTML do body
       const html = await response.text();
 
-      // Carrega o HTML no Cheerio
-      const $ = cheerio.load(html);
+      const fullPost = await this.iaRepository.generateCustomPrompt(html, agents.copywriter.extractContent);
 
-      // Remove elementos desnecessários
-      $('script').remove();
-      $('style').remove();
-      $('noscript').remove();
-      $('iframe').remove();
-      $('nav').remove();
-      $('header').remove();
-      $('footer').remove();
+      const title = await this.iaRepository.generateCustomPrompt(fullPost, agents.copywriter.extractTitle);
 
-      // Extrai o conteúdo principal
-      const mainContent = $('article, [role="main"], .main-content, #main-content, .post-content, .article-content, main').first();
-      
-      const textContent = mainContent.length 
-        ? mainContent.text()
-        : $('body').text();
+      await this.create({
+        url,
+        content: fullPost,
+        title: title,
+        domain: url.split('/')[2],
+        status: PostStatus.IMPORTED
+      });
 
-      return textContent
-        .replace(/\s+/g, ' ')
-        .replace(/\n+/g, '\n')
-        .trim();
+      return fullPost;
 
     } catch (error) {
       console.error('Erro ao extrair conteúdo:', error);

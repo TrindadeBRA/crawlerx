@@ -102,26 +102,25 @@ export class PostsController {
     }
   }
 
-  async importByUrl(request: Request) {
+  async importByUrl(url: string) {
     try {
-      const { url } = await request.json();
-      
       if (!url) {
-        return NextResponse.json(
-          { error: 'URL não fornecida' }, 
-          { status: 400 }
-        );
+        return {
+          success: false,
+          message: "URL não fornecida"
+        };
       }
 
-      const result = await this.postsService.importFromUrl(url);
-      return NextResponse.json(result);
+      const content = await this.postsService.importFromUrl(url);
+
+      return {
+        success: true,
+        result: content,
+      };
 
     } catch (error) {
-      console.error('Erro ao processar a URL:', error);
-      return NextResponse.json(
-        { error: 'Erro ao processar a URL fornecida' }, 
-        { status: 500 }
-      );
+      console.error('Erro ao importar conteúdo:', error);
+      throw error;
     }
   }
 } 

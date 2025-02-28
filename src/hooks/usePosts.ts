@@ -9,9 +9,10 @@ export function usePosts() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(30)
   const [processingQueue, setProcessingQueue] = useState<number[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   // Query para listar os posts
-  const { data, isLoading } = useQuery({
+  const { data, isLoading: queryLoading } = useQuery({
     queryKey: ['posts', page, pageSize],
     queryFn: async () => {
       const response = await fetch(`/api/posts/list?page=${page}&pageSize=${pageSize}`)
@@ -233,42 +234,44 @@ export function usePosts() {
   })
 
   // Mutation para importar post por URL
-  const { mutate: importByUrl, isPending: isImportingByUrl } = useMutation({
+  const { mutate: importFromUrl, isPending: isImportingFromUrl } = useMutation({
     mutationFn: async (url: string) => {
-      const response = await fetch('/api/posts/import-by-url', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      });
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/posts/import-by-url', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Falha ao importar URL');
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.message || 'Erro ao importar conteúdo');
+        }
+
+        return data;
+      } catch (error) {
+        console.error('Erro ao importar:', error);
+        throw error;
+      } finally {
+        setIsLoading(false);
       }
-
-      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      showNotification(
-        'Sucesso',
-        'URL importada com sucesso!',
-        'success'
-      );
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+      showNotification('Sucesso', 'Conteúdo importado com sucesso!', 'success')
     },
     onError: (error: Error) => {
-      showNotification(
-        'Erro',
-        error.message || 'Erro ao importar URL',
-        'error'
-      );
+      showNotification('Erro', error.message, 'error')
     }
-  });
+  })
 
   return {
     posts: data?.data ?? [],
-    isLoading,
+    isLoading: queryLoading || isLoading,
     processPost,
     isProcessingText,
     processImage,
@@ -279,8 +282,8 @@ export function usePosts() {
     isSaving,
     publishPost,
     isPublishing,
-    importByUrl,
-    isImportingByUrl,
+    importFromUrl,
+    isImportingFromUrl,
     pagination: {
       page,
       pageSize,
