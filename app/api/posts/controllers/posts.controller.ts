@@ -101,4 +101,27 @@ export class PostsController {
       );
     }
   }
+
+  async importByUrl(request: Request) {
+    try {
+      const { url } = await request.json();
+      
+      if (!url) {
+        return NextResponse.json(
+          { error: 'URL não fornecida' }, 
+          { status: 400 }
+        );
+      }
+
+      const result = await this.postsService.importFromUrl(url);
+      return NextResponse.json(result);
+
+    } catch (error) {
+      console.error('Erro ao processar a URL:', error);
+      return NextResponse.json(
+        { error: 'Erro ao processar a URL fornecida' }, 
+        { status: 500 }
+      );
+    }
+  }
 } 

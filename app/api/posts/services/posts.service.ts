@@ -104,4 +104,25 @@ export class PostsService {
   async removePost(postId: number): Promise<void> {
     return this.postsRepository.remove(postId);
   }
+
+  async importFromUrl(url: string) {
+    try {
+      if (!url) {
+        throw new Error('URL não fornecida');
+      }
+
+      const content = await this.postsRepository.fetchAndExtractContent(url);
+
+      console.log('Content', content);
+
+      return {
+        success: true,
+        content,
+        message: 'Conteúdo extraído com sucesso'
+      };
+    } catch (error) {
+      console.error('Erro ao importar conteúdo:', error);
+      throw error;
+    }
+  }
 } 

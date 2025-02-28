@@ -1,4 +1,5 @@
 import { PrismaClient, Post, PostStatus } from '@prisma/client';
+import * as cheerio from 'cheerio';
 
 export class PostsRepository {
   private prisma: PrismaClient;
@@ -75,5 +76,51 @@ export class PostsRepository {
     await this.prisma.post.delete({
       where: { id: postId }
     });
+  }
+
+  async fetchAndExtractContent(url: string): Promise<string> {
+    try {
+      // Realiza o fetch da URL
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Falha ao acessar a URL: ${response.statusText}`);
+      }
+
+      // Obtém o HTML do body
+      const html = await response.text();
+
+      // Carrega o HTML no Cheerio
+      const $ = cheerio.load(html);
+
+      // Remove elementos desnecessários
+      $('script').remove();
+      $('style').remove();
+      $('noscript').remove();
+      $('iframe').remove();
+      $('nav').remove();
+      $('header').remove();
+      $('footer').remove();
+
+      // Extrai o conteúdo principal
+      const mainContent = $('article, [role="main"], .main-content, #main-content, .post-content, .article-content, main').first();
+      
+      const textContent = mainContent.length 
+        ? mainContent.text()
+        : $('body').text();
+
+      return textContent
+        .replace(/\s+/g, ' ')
+        .replace(/\n+/g, '\n')
+        .trim();
+
+    } catch (error) {
+      console.error('Erro ao extrair conteúdo:', error);
+      throw error;
+    }
   }
 } 
