@@ -70,8 +70,7 @@ export default function ImportVideoModal() {
                       {...register('url')}
                       label="URL do Vídeo"
                       error={errors.url?.message}
-                      placeholder="https://..."
-                      type="url"
+                      placeholder="Digite a URL do vídeo"
                     />
                   </div>
 
