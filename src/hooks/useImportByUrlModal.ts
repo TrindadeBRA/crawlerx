@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 
-interface VideoImportModalStore {
+interface ByUrlImportModalStore {
   isOpen: boolean
   handleOpen: () => void
   handleClose: () => void
 }
 
-export const useVideoImportModal = create<VideoImportModalStore>((set) => ({
+export const useByUrlImportModal = create<ByUrlImportModalStore>((set) => ({
   isOpen: false,
   handleOpen: () => set({ isOpen: true }),
   handleClose: () => set({ isOpen: false }),

@@ -2,28 +2,28 @@
 
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { useVideoImportModal } from '../../hooks/useVideoImportModal'
+import { useByUrlImportModal } from '../../hooks/useImportByUrlModal'
 import { useForm } from 'react-hook-form'
 import { Input } from '../inputs/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ImportVideoInput, importVideoSchema } from '@/src/lib/schemas/post.schema'
+import { ImportByUrlInput, importByUrlSchema } from '@/src/lib/schemas/post.schema'
 
-export default function ImportVideoModal() {
-  const { isOpen, handleClose } = useVideoImportModal()
+export default function ImportByUrlModal() {
+  const { isOpen, handleClose } = useByUrlImportModal()
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm<ImportVideoInput>({
-    resolver: zodResolver(importVideoSchema),
+  } = useForm<ImportByUrlInput>({
+    resolver: zodResolver(importByUrlSchema),
     defaultValues: {
       url: ''
     }
   })
 
-  const onSubmit = async (data: ImportVideoInput) => {
+  const onSubmit = async (data: ImportByUrlInput) => {
     console.log(data)
 
     reset()
@@ -61,16 +61,16 @@ export default function ImportVideoModal() {
                   as="h3"
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
-                  Importar Vídeo
+                  Importar pela URL
                 </Dialog.Title>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
                   <div className="mb-4">
                     <Input
                       {...register('url')}
-                      label="URL do Vídeo"
+                      label="URL do Post"
                       error={errors.url?.message}
-                      placeholder="Digite a URL do vídeo"
+                      placeholder="Digite a URL do post"
                     />
                   </div>
 

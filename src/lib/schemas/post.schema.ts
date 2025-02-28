@@ -28,10 +28,10 @@ export const importPostsSchema = z.object({
 
 export type ImportPostsInput = z.infer<typeof importPostsSchema>
 
-export const importVideoSchema = z.object({
+export const importByUrlSchema = z.object({
   url: z.string()
     .min(1, 'A URL é obrigatória')
     .url('URL inválida')
 })
 
-export type ImportVideoInput = z.infer<typeof importVideoSchema> 
+export type ImportByUrlInput = z.infer<typeof importByUrlSchema> 
