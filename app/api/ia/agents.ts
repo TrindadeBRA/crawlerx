@@ -96,10 +96,10 @@ export const agents = {
 
             Input Esperado:
 
-            🔹 Texto original do artigo de tecnologia.
+            - Texto original do artigo de tecnologia.
             Output Esperado:
 
-            ✅ Um prompt conciso para a IA de criação de imagens, com as diretrizes visuais especificadas acima, para gerar uma imagem destacada de acordo com o estilo e as cores mencionadas.            
+            - Um prompt conciso para a IA de criação de imagens, com as diretrizes visuais especificadas acima, para gerar uma imagem destacada de acordo com o estilo e as cores mencionadas.            
         `,
         createNegativePrompt: `
             Never include text in the images, nothing written in the images.
