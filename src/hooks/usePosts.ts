@@ -232,6 +232,40 @@ export function usePosts() {
     }
   })
 
+  // Mutation para importar post por URL
+  const { mutate: importByUrl, isPending: isImportingByUrl } = useMutation({
+    mutationFn: async (url: string) => {
+      const response = await fetch('/api/posts/import-by-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao importar URL');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      showNotification(
+        'Sucesso',
+        'URL importada com sucesso!',
+        'success'
+      );
+    },
+    onError: (error: Error) => {
+      showNotification(
+        'Erro',
+        error.message || 'Erro ao importar URL',
+        'error'
+      );
+    }
+  });
+
   return {
     posts: data?.data ?? [],
     isLoading,
@@ -245,6 +279,8 @@ export function usePosts() {
     isSaving,
     publishPost,
     isPublishing,
+    importByUrl,
+    isImportingByUrl,
     pagination: {
       page,
       pageSize,

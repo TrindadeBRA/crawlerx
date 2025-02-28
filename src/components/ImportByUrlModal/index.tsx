@@ -7,9 +7,11 @@ import { useForm } from 'react-hook-form'
 import { Input } from '../inputs/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ImportByUrlInput, importByUrlSchema } from '@/src/lib/schemas/post.schema'
+import { usePosts } from '@/src/hooks/usePosts'
 
 export default function ImportByUrlModal() {
   const { isOpen, handleClose } = useByUrlImportModal()
+  const { importByUrl, isImportingByUrl } = usePosts()
 
   const {
     register,
@@ -24,8 +26,7 @@ export default function ImportByUrlModal() {
   })
 
   const onSubmit = async (data: ImportByUrlInput) => {
-    console.log(data)
-
+    await importByUrl(data.url)
     reset()
     handleClose()
   }
@@ -84,9 +85,10 @@ export default function ImportByUrlModal() {
                     </button>
                     <button
                       type="submit"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark focus:outline-none"
+                      disabled={isImportingByUrl}
+                      className="inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark focus:outline-none disabled:opacity-50"
                     >
-                      Importar
+                      {isImportingByUrl ? 'Importando...' : 'Importar'}
                     </button>
                   </div>
                 </form>
