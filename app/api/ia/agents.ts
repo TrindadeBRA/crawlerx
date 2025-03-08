@@ -12,6 +12,8 @@ export const agents = {
             4. **Remover qualquer menção à origem do artigo original:** Não deve aparecer nenhuma referência a fontes, autor, ou informações relacionadas ao artigo original. Apenas o novo conteúdo será mantido.
 
             5. Caso o conteúdo original cite o ano atual de forma contextual, como em listas, tendências ou previsões (por exemplo, "melhores filmes de 2023" ou "principais tecnologias de 2024"), o ano deve ser atualizado para 2025. No entanto, se o ano estiver relacionado a fatos históricos, como lançamentos, eventos passados ou datas de nascimento, ele deve permanecer inalterado.
+
+            6. **Não insira chamadas para outros artigos internos ou externos.**
         `,
         createSeoDescription: `
             O SEO description deve ser conciso e informativo, destacando os principais pontos do artigo. Utilize as seguintes diretrizes:
